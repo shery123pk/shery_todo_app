@@ -7,8 +7,8 @@ from typing import Generator
 
 import pytest
 
-# Add src directory to Python path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+# Add cli directory to Python path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 @pytest.fixture

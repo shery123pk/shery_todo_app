@@ -1,0 +1,125 @@
+# Docker Compose for Local Development
+# Evolution of Todo - All Phases
+
+version: '3.8'
+
+services:
+  # Phase 2+: PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: todo-db
+    environment:
+      POSTGRES_USER: todo_user
+      POSTGRES_PASSWORD: todo_password
+      POSTGRES_DB: todo_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U todo_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - phase2
+      - phase3
+      - phase4
+      - phase5
+
+  # Phase 2+: Backend API (FastAPI)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: todo-backend
+    environment:
+      DATABASE_URL: postgresql://todo_user:todo_password@db:5432/todo_db
+      SECRET_KEY: dev-secret-key-change-in-production
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    profiles:
+      - phase2
+      - phase3
+      - phase4
+      - phase5
+
+  # Phase 2+: Frontend (Next.js)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: todo-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+    profiles:
+      - phase2
+      - phase3
+      - phase4
+      - phase5
+
+  # Phase 3+: Redis for caching/sessions
+  redis:
+    image: redis:7-alpine
+    container_name: todo-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - phase3
+      - phase4
+      - phase5
+
+  # Phase 5: Kafka for event streaming
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: todo-kafka
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    profiles:
+      - phase5
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: todo-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    profiles:
+      - phase5
+
+volumes:
+  postgres_data:
+
+# Usage:
+# Phase 1 (CLI): No Docker needed, use `uv run todo` from cli/
+# Phase 2: docker-compose --profile phase2 up
+# Phase 3: docker-compose --profile phase3 up
+# Phase 4: docker-compose --profile phase4 up
+# Phase 5: docker-compose --profile phase5 up
