@@ -3,6 +3,26 @@
 
 A 5-phase project demonstrating Spec-Driven Development (SDD) from CLI to Full-Stack AI-Powered Application with Cloud Deployment.
 
+**Tech Stack:** FastAPI • Next.js 15 • OpenAI GPT-4 • Neon PostgreSQL • Qdrant • HuggingFace • Kubernetes
+
+---
+
+## 🚀 Quick Start
+
+Choose your setup path:
+
+| Path | Guide | Best For |
+|------|-------|----------|
+| **🌩️ Cloud (Recommended)** | [SETUP_WITH_NEON_OPENAI_QDRANT.md](./SETUP_WITH_NEON_OPENAI_QDRANT.md) | Production, AI features, semantic search |
+| **🔑 Get Credentials** | [ENV_CREDENTIALS_TEMPLATE.md](./ENV_CREDENTIALS_TEMPLATE.md) | Quick reference, fill-in template |
+| **💡 Multi-Project Tips** | [CREDENTIALS_BEST_PRACTICES.md](./CREDENTIALS_BEST_PRACTICES.md) | Reusing credentials across projects |
+| **🚢 Deploy Backend** | [DEPLOY_TO_HUGGINGFACE.md](./DEPLOY_TO_HUGGINGFACE.md) | Deploy to HuggingFace Spaces |
+| **🏠 Local Setup** | [GETTING_STARTED.md](./GETTING_STARTED.md) | Local PostgreSQL, no AI |
+
+**Most users start here:** 👉 [SETUP_WITH_NEON_OPENAI_QDRANT.md](./SETUP_WITH_NEON_OPENAI_QDRANT.md)
+
+---
+
 ## 🎯 Project Vision
 
 This monorepo showcases the evolution of a todo application across five progressive phases, demonstrating:
