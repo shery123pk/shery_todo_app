@@ -1,6 +1,6 @@
 """
 Chatbot API Routes
-Phase III: AI-Powered Chatbot Integration
+Phase III: AI-Powered Chatbot Integration with OpenAI
 Author: Sharmeen Asif
 """
 
@@ -9,11 +9,22 @@ from pydantic import BaseModel
 from typing import Optional
 import httpx
 import os
+from openai import OpenAI
 
 from ..dependencies import get_current_user
 from ..models.user import User
 
 router = APIRouter(prefix="/api/chatbot", tags=["chatbot"])
+
+# Initialize OpenAI client if API key is available
+openai_client = None
+openai_api_key = os.getenv("OPENAI_API_KEY")
+if openai_api_key:
+    try:
+        openai_client = OpenAI(api_key=openai_api_key)
+        print("✅ OpenAI client initialized for chatbot")
+    except Exception as e:
+        print(f"⚠️  Failed to initialize OpenAI: {e}")
 
 
 class ChatMessage(BaseModel):
