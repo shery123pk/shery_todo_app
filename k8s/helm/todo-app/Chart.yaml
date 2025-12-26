@@ -1,0 +1,19 @@
+# Helm Chart for Todo Application
+# Phase IV: Kubernetes Deployment
+# Author: Sharmeen Asif
+
+apiVersion: v2
+name: todo-app
+description: Full-stack Todo Application with AI Chatbot
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - todo
+  - fastapi
+  - nextjs
+  - ai
+  - chatbot
+maintainers:
+  - name: Sharmeen Asif
+    email: sharmeen@example.com

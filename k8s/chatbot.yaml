@@ -1,0 +1,71 @@
+# Chatbot Deployment (AI Assistant)
+# Phase IV: Kubernetes Deployment
+# Author: Sharmeen Asif
+
+---
+# Chatbot Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbot
+  namespace: todo-app
+  labels:
+    app: todo
+    component: chatbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todo
+      component: chatbot
+  template:
+    metadata:
+      labels:
+        app: todo
+        component: chatbot
+    spec:
+      containers:
+      - name: chatbot
+        image: todo-chatbot:latest
+        imagePullPolicy: Never  # For local Minikube
+        stdin: true
+        tty: true
+        env:
+        - name: API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: todo-config
+              key: API_URL
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: todo-secrets
+              key: ANTHROPIC_API_KEY
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+
+---
+# Chatbot Service (for potential API access)
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatbot-service
+  namespace: todo-app
+  labels:
+    app: todo
+    component: chatbot
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  selector:
+    app: todo
+    component: chatbot

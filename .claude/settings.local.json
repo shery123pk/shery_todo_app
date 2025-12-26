@@ -3,7 +3,8 @@
     "allow": [
       "Bash(git mv:*)",
       "Bash(uv run todo --help:*)",
-      "Bash(uv run pytest:*)"
+      "Bash(uv run pytest:*)",
+      "Bash(powershell.exe -File .specify/scripts/powershell/setup-plan.ps1 -Json)"
     ]
   }
 }

@@ -1,0 +1,26 @@
+# ConfigMap for Todo Application
+# Non-sensitive configuration data
+# Author: Sharmeen Asif
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todo-config
+  namespace: todo-app
+  labels:
+    app: todo
+data:
+  # Backend configuration
+  ENVIRONMENT: "development"
+  DEBUG: "true"
+  BETTER_AUTH_URL: "http://backend-service:8000"
+  FRONTEND_URL: "http://frontend-service:3000"
+
+  # Database configuration
+  POSTGRES_DB: "todo_db"
+  DATABASE_HOST: "postgres-service"
+  DATABASE_PORT: "5432"
+
+  # API URL for frontend and chatbot
+  NEXT_PUBLIC_API_URL: "http://backend-service:8000"
+  API_URL: "http://backend-service:8000"

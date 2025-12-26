@@ -1,6 +1,7 @@
 # Evolution of Todo
+**Author: Sharmeen Asif**
 
-A 5-phase project demonstrating Spec-Driven Development (SDD) from CLI to Full-Stack AI-Powered Application.
+A 5-phase project demonstrating Spec-Driven Development (SDD) from CLI to Full-Stack AI-Powered Application with Cloud Deployment.
 
 ## 🎯 Project Vision
 
@@ -9,143 +10,261 @@ This monorepo showcases the evolution of a todo application across five progress
 - **AI as Sole Developer** (Claude) with Human as Architect
 - **Full Traceability** from specs to code with ADRs and PHRs
 - **Additive Evolution** where each phase builds on previous ones
-- **Production Deployments** on Vercel (frontend) and HuggingFace (backend)
+- **Production Deployments** on Vercel (frontend), HuggingFace (backend), Neon (database), and DigitalOcean DOKS (cloud)
 
 ## 📊 Project Status
 
 | Phase | Name | Status | Deployment |
 |-------|------|--------|------------|
 | **1** | CLI + In-Memory | ✅ Complete | Local |
-| **2** | Full-Stack Web | 🚧 Planning | Vercel + HuggingFace |
-| **3** | AI-Powered Chatbot | 📋 Planned | TBD |
-| **4** | Local K8s Deployment | 📋 Planned | Minikube |
-| **5** | Cloud Deployment | 📋 Planned | DOKS/GKE |
+| **2** | Full-Stack Web | ✅ Complete | Vercel + HuggingFace + Neon |
+| **3** | AI-Powered Chatbot | ✅ Complete | Local / Docker |
+| **4** | Local K8s Deployment | ✅ Complete | Minikube + Helm |
+| **5** | Cloud Deployment | ✅ Complete | DigitalOcean DOKS + Kafka + Dapr |
 
 ## 🏗️ Monorepo Structure
 
 ```
 shery_todo_app/
 ├── cli/                          # Phase 1: CLI Todo App ✅
-│   ├── todo_cli/                 # Source code
+│   ├── app/                      # Source code (models, storage, CLI)
 │   ├── tests/                    # 81 tests, 96% coverage
 │   └── pyproject.toml
-├── backend/                      # Phase 2+: FastAPI API 🚧
-│   └── README.md                 # Coming soon
-├── frontend/                     # Phase 2+: Next.js UI 🚧
-│   └── README.md                 # Coming soon
-├── shared/                       # Shared code/types 🚧
-│   └── README.md                 # Coming soon
+├── backend/                      # Phase 2: FastAPI Backend ✅
+│   ├── app/                      # API routes, models, auth, events
+│   ├── alembic/                  # Database migrations
+│   ├── tests/                    # Backend test suite
+│   └── Dockerfile                # HuggingFace Spaces deployment
+├── frontend/                     # Phase 2: Next.js Frontend ✅
+│   ├── app/                      # App Router (auth, dashboard)
+│   ├── components/               # React components (shadcn/ui)
+│   ├── lib/                      # Utilities and API client
+│   └── Dockerfile                # Vercel deployment
+├── chatbot/                      # Phase 3: AI Chatbot ✅
+│   ├── app/                      # MCP server, Claude agent, CLI
+│   ├── tests/                    # Chatbot tests
+│   └── Dockerfile                # Container deployment
+├── k8s/                          # Phase 4: Kubernetes Manifests ✅
+│   ├── *.yaml                    # K8s resources (namespace, deployments, services)
+│   ├── helm/todo-app/            # Helm chart for todo application
+│   └── deploy.sh                 # Minikube deployment script
+├── infra/                        # Phase 5: Cloud Infrastructure ✅
+│   ├── kafka/                    # Kafka + Zookeeper for event streaming
+│   ├── dapr/                     # Dapr configuration (pub/sub, state store)
+│   └── doks/terraform/           # Terraform IaC for DigitalOcean
+├── .github/workflows/            # CI/CD Pipeline ✅
+│   └── deploy.yml                # Automated testing and deployment
+├── docs/                         # Documentation ✅
+│   ├── PRODUCTION_DEPLOYMENT.md  # Production deployment guide
+│   └── README.md                 # Documentation index
+├── scripts/                      # Deployment Scripts ✅
+│   ├── verify-env.py             # Environment validation
+│   ├── test-production.py        # Production testing
+│   └── deployment-checklist.md   # Step-by-step deployment
 ├── specs/                        # All phase specifications
-│   ├── 001-cli-todo-app/         # Phase 1 specs ✅
-│   └── ...                       # Future phases
+│   └── 001-cli-todo-app/         # Phase 1 specs ✅
 ├── history/                      # Traceability artifacts
 │   ├── adr/                      # Architecture Decision Records
 │   └── prompts/                  # Prompt History Records (PHRs)
 ├── .specify/                     # Spec-Kit Plus configuration
 │   ├── memory/constitution.md    # Project constitution
 │   └── templates/                # SDD templates
-├── docker-compose.yml            # Multi-phase local dev
-├── PHASE1_STATUS.md              # Phase 1 completion report
 └── README.md                     # This file
 ```
 
 ## 🚀 Quick Start
 
-### Phase 1: CLI (Current)
+### Phase 1: CLI
 
 ```bash
-# Install CLI
+# Navigate to CLI directory
 cd cli
-uv pip install -e .
+
+# Install dependencies
+uv sync
 
 # Use the CLI
-todo add "My first task" -d "This is a description"
-todo list
-todo complete 1
-todo delete 1
+uv run todo --help
+uv run todo add "My first task"
+uv run todo list
+uv run todo complete 1
+uv run todo delete 1
 
 # Run tests
-uv run pytest
+uv run pytest -v
 ```
 
-### Phase 2+: Full Stack (Coming Soon)
+### Phase 2: Full-Stack Web (Local Development)
 
 ```bash
-# Start all services for Phase 2
-docker-compose --profile phase2 up
+# Backend
+cd backend
+uv sync
+uv run alembic upgrade head
+uv run uvicorn app.main:app --reload --port 8000
 
-# Frontend will be at: http://localhost:3000
-# Backend API will be at: http://localhost:8000
-# API docs will be at: http://localhost:8000/docs
+# Frontend (in new terminal)
+cd frontend
+npm install
+npm run dev
+
+# Access:
+# - Frontend: http://localhost:3000
+# - Backend API: http://localhost:8000
+# - API Docs: http://localhost:8000/docs
 ```
+
+### Phase 3: AI Chatbot
+
+```bash
+cd chatbot
+uv sync
+
+# Set environment variables
+# ANTHROPIC_API_KEY=your-api-key
+# API_URL=http://localhost:8000 (or your backend URL)
+
+# Run chatbot
+uv run chatbot
+
+# Follow prompts to authenticate and chat
+```
+
+### Phase 4: Kubernetes (Minikube)
+
+```bash
+cd k8s
+
+# Start Minikube and deploy all services
+./deploy.sh
+
+# Check deployment status
+kubectl get pods -n todo-app
+kubectl get services -n todo-app
+
+# Access frontend
+minikube service frontend-service -n todo-app
+```
+
+### Phase 5: Cloud Deployment
+
+See [Production Deployment Guide](./docs/PRODUCTION_DEPLOYMENT.md) for detailed instructions on:
+- Deploying to DigitalOcean DOKS with Terraform
+- Setting up Kafka event streaming
+- Configuring Dapr microservices
+- Running CI/CD pipeline with GitHub Actions
 
 ## 📋 Phase Roadmap
 
 ### Phase 1: CLI + In-Memory ✅ COMPLETE
 
 **Deliverables:**
-- ✅ Command-line todo application
+- ✅ Command-line todo application with Typer
 - ✅ In-memory storage with JSON persistence
 - ✅ CRUD operations (add, list, update, delete, complete)
-- ✅ 96% test coverage (81 tests)
+- ✅ 96% test coverage (81 tests passing)
 - ✅ Full SDD workflow (constitution → spec → plan → tasks → implement)
 
-**Tech Stack:** Python 3.13+, Click, pytest, UV
+**Tech Stack:** Python 3.13+, Typer, pytest, UV
 
-**[View Phase 1 Details](./cli/README.md)** | **[View Status Report](./PHASE1_STATUS.md)**
+**[View Phase 1 Details](./cli/README.md)**
 
-### Phase 2: Full-Stack Web 🚧 NEXT
+---
 
-**Planned Deliverables:**
-- REST API with FastAPI
-- Next.js 15 frontend with shadcn/ui
-- Neon PostgreSQL database
-- Better Auth authentication
-- OpenAPI documentation
-- UUID-based task IDs
+### Phase 2: Full-Stack Web Application ✅ COMPLETE
 
-**Tech Stack:** FastAPI, Next.js, SQLModel, Tailwind CSS, Better Auth
+**Deliverables:**
+- ✅ REST API with FastAPI
+- ✅ Next.js 15 frontend with shadcn/ui components
+- ✅ PostgreSQL database (Neon-compatible)
+- ✅ Custom JWT authentication (bcrypt password hashing)
+- ✅ OpenAPI/Swagger documentation
+- ✅ UUID-based task IDs with user isolation
+- ✅ Production-ready Dockerfiles
+
+**Tech Stack:** FastAPI, SQLModel, Alembic, Next.js 15, TypeScript, Tailwind CSS, shadcn/ui
 
 **Deployment Targets:**
 - **Frontend:** Vercel
-- **Backend:** HuggingFace Spaces
+- **Backend:** HuggingFace Spaces (port 7860)
+- **Database:** Neon PostgreSQL
 
-**Required ADRs:**
-1. ADR-001: ID Migration Strategy (int → UUID)
-2. ADR-002: Monorepo Structure
-3. ADR-003: Database Choice (Neon PostgreSQL)
-4. ADR-004: Auth Strategy (Better Auth)
+**Documentation:** [Production Deployment Guide](./docs/PRODUCTION_DEPLOYMENT.md)
 
-### Phase 3: AI-Powered Chatbot 📋 PLANNED
+---
 
-**Planned Deliverables:**
-- Natural language interface for task management
-- Claude-powered chatbot with MCP tools
-- ChatKit integration
-- Conversational UI
+### Phase 3: AI-Powered Chatbot ✅ COMPLETE
 
-**Tech Stack:** Claude API, Agents SDK, MCP Protocol, ChatKit
+**Deliverables:**
+- ✅ Natural language interface for task management
+- ✅ Claude Sonnet 4 AI agent with function calling
+- ✅ MCP (Model Context Protocol) server with 5 tools
+- ✅ Rich CLI interface with authentication
+- ✅ Conversational task management
 
-### Phase 4: Local K8s Deployment 📋 PLANNED
+**MCP Tools:**
+1. `list_tasks` - Get all tasks (with filtering)
+2. `create_task` - Create new task
+3. `update_task` - Update existing task
+4. `delete_task` - Delete task
+5. `search_tasks` - Search tasks by keywords
 
-**Planned Deliverables:**
-- Dockerized applications
-- Helm charts for deployment
-- Minikube local cluster
-- AIOps tools (kubectl-ai, kagent)
+**Tech Stack:** Anthropic Claude API, MCP SDK, httpx, rich
 
-**Tech Stack:** Docker, Kubernetes, Helm, Minikube
+**Example Commands:**
+- "Show me all my tasks"
+- "Add buy groceries to my todo list"
+- "Mark task 3 as complete"
+- "Delete the task about shopping"
 
-### Phase 5: Cloud Deployment 📋 PLANNED
+---
 
-**Planned Deliverables:**
-- Production Kubernetes deployment
-- Event streaming with Kafka
-- Service mesh with Dapr
-- CI/CD pipeline
-- Advanced features (real-time, notifications, etc.)
+### Phase 4: Local Kubernetes Deployment ✅ COMPLETE
 
-**Tech Stack:** DOKS/GKE, Redpanda Kafka, Dapr, ArgoCD
+**Deliverables:**
+- ✅ Docker images for all services (backend, frontend, chatbot)
+- ✅ Kubernetes manifests (Deployments, Services, ConfigMaps, Secrets)
+- ✅ PostgreSQL with PersistentVolumeClaim
+- ✅ Init containers for database migrations
+- ✅ Helm charts for templated deployment
+- ✅ Minikube deployment script
+
+**Kubernetes Resources:**
+- Namespace: `todo-app`
+- Deployments: postgres, backend, frontend, chatbot
+- Services: ClusterIP (internal), LoadBalancer (frontend)
+- Storage: PVC for PostgreSQL data
+
+**Tech Stack:** Docker, Kubernetes 1.28+, Helm 3, Minikube
+
+**Quick Deploy:**
+```bash
+cd k8s && ./deploy.sh
+```
+
+---
+
+### Phase 5: Advanced Cloud Deployment ✅ COMPLETE
+
+**Deliverables:**
+- ✅ Event streaming with Apache Kafka + Zookeeper
+- ✅ Microservices communication with Dapr sidecar
+- ✅ Redis state store for Dapr
+- ✅ Infrastructure as Code with Terraform
+- ✅ DigitalOcean DOKS cluster configuration
+- ✅ CI/CD pipeline with GitHub Actions
+
+**Infrastructure Components:**
+- **Kafka:** Event streaming for task operations (create, update, delete, complete)
+- **Dapr:** Service mesh for pub/sub and state management
+- **Terraform:** DOKS cluster, managed PostgreSQL, load balancer
+- **CI/CD:** Automated testing → Docker build → Kubernetes deployment
+
+**Event Streaming:** Tasks publish events to Kafka topics for real-time updates and analytics
+
+**Tech Stack:** Apache Kafka, Dapr, Terraform, DigitalOcean, GitHub Actions
+
+**Production Deployment:** See [docs/PRODUCTION_DEPLOYMENT.md](./docs/PRODUCTION_DEPLOYMENT.md)
 
 ## 📖 Documentation
 
@@ -236,18 +355,49 @@ This project follows **Spec-Driven Development (SDD)** principles:
 
 ### Phase 1 Achievements
 - ✅ 100% spec coverage (6/6 user stories)
-- ✅ 96% code coverage (81 tests)
+- ✅ 96% code coverage (81 tests passing)
 - ✅ 100% test pass rate
 - ✅ <10 cyclomatic complexity
 - ✅ Full SDD workflow executed
-- ✅ Complete traceability (4 PHRs)
+- ✅ Complete traceability (PHRs)
 
-### Overall Project Goals
-- Demonstrate complete 5-phase evolution
-- Maintain >80% test coverage across all phases
-- Full backward compatibility (Phase N preserves Phase N-1)
-- Production deployments on public platforms
-- Complete documentation and traceability
+### Phase 2 Achievements
+- ✅ Complete authentication system (JWT + bcrypt)
+- ✅ Full CRUD API with OpenAPI documentation
+- ✅ User isolation and data security
+- ✅ Production-ready Dockerfiles
+- ✅ Database migrations with Alembic
+- ✅ Modern frontend with Next.js 15 and shadcn/ui
+
+### Phase 3 Achievements
+- ✅ AI agent with natural language understanding
+- ✅ 5 MCP tools for task management
+- ✅ Claude Sonnet 4 integration
+- ✅ Conversational interface
+- ✅ Authenticated API access
+
+### Phase 4 Achievements
+- ✅ All services containerized
+- ✅ Complete Kubernetes manifests
+- ✅ Helm charts for deployment
+- ✅ Database persistence with PVCs
+- ✅ Init containers for migrations
+- ✅ Automated Minikube deployment
+
+### Phase 5 Achievements
+- ✅ Kafka event streaming implemented
+- ✅ Dapr microservices architecture
+- ✅ Terraform IaC for cloud deployment
+- ✅ CI/CD pipeline with GitHub Actions
+- ✅ Production-ready infrastructure
+
+### Overall Project Success
+- ✅ All 5 phases completed
+- ✅ Full evolution from CLI to cloud deployment demonstrated
+- ✅ Production-ready code for all phases
+- ✅ Comprehensive documentation and deployment guides
+- ✅ Multiple deployment options (local, Minikube, cloud)
+- ✅ Complete tooling (environment validation, testing, deployment)
 
 ## 🤝 Contributing
 
@@ -271,9 +421,9 @@ MIT
 
 ---
 
-**Current Phase:** 1 (Complete) ✅
-**Next Phase:** 2 (Planning) 🚧
+**Current Phase:** All 5 Phases Complete ✅
 **Last Updated:** 2025-12-26
-**Status:** Production Ready (Phase 1)
+**Status:** Production Ready (All Phases)
+**Author:** Sharmeen Asif
 
-🤖 Built with [Claude Code](https://claude.com/claude-code)
+🤖 Built with [Claude Code](https://claude.com/claude-code) | 🎓 Panaversity Hackathon Project
