@@ -91,7 +91,8 @@ async def shutdown_event():
 
 
 # API Routers
-from app.routers import auth, tasks
+from app.routers import auth, tasks, chatbot
 
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(tasks.router, prefix="/api/tasks", tags=["Tasks"])
+app.include_router(chatbot.router, tags=["Chatbot"])
