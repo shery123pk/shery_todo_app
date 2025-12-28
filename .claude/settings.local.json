@@ -31,7 +31,9 @@
       "Bash(python:*)",
       "Bash(\".venv/Scripts/python.exe\" -m pytest tests/test_auth_service.py::test_signup_success -v -o addopts=\"\")",
       "Bash(taskkill:*)",
-      "Bash(if exist nul del /f nul)"
+      "Bash(if exist nul del /f nul)",
+      "Bash(git remote:*)",
+      "Bash(git remote add:*)"
     ]
   }
 }
