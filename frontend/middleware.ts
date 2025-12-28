@@ -18,10 +18,10 @@ export async function middleware(request: NextRequest) {
 
   // Only protect /tasks routes
   if (pathname.startsWith('/tasks')) {
-    const sessionToken = request.cookies.get('session_token')
+    const accessToken = request.cookies.get('access_token')
 
-    // No session token - redirect to signin
-    if (!sessionToken) {
+    // No access token - redirect to signin
+    if (!accessToken) {
       const signinUrl = new URL('/auth/signin', request.url)
       signinUrl.searchParams.set('returnUrl', pathname)
       return NextResponse.redirect(signinUrl)
@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
       const response = await fetch(`${API_URL}/api/auth/me`, {
         method: 'GET',
         headers: {
-          Cookie: `session_token=${sessionToken.value}`,
+          Cookie: `access_token=${accessToken.value}`,
         },
       })
 

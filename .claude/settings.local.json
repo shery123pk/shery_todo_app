@@ -7,7 +7,31 @@
       "Bash(powershell.exe -File .specify/scripts/powershell/setup-plan.ps1 -Json)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(uv run:*)",
+      "Bash(curl:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(cat:*)",
+      "Bash(uv pip install:*)",
+      "Bash(timeout 10 uv run:*)",
+      "Bash(timeout 15 uv run:*)",
+      "Bash(timeout 45 uv run:*)",
+      "Bash(git fetch:*)",
+      "Bash(ls:*)",
+      "Bash(powershell.exe -File .specify/scripts/powershell/create-new-feature.ps1 -Json -Number 1 -ShortName \"project-management-system\" \"Professional Jira-Like Project Management System - Production-grade multi-tenant SaaS for project management\")",
+      "Skill(sp.plan)",
+      "Bash(powershell.exe -File .specify/scripts/powershell/update-agent-context.ps1 -AgentType claude)",
+      "Skill(sp.tasks)",
+      "Bash(powershell.exe -File .specify/scripts/powershell/check-prerequisites.ps1 -Json)",
+      "Bash(npm run test:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(timeout 90 uv run pytest:*)",
+      "Bash(python:*)",
+      "Bash(\".venv/Scripts/python.exe\" -m pytest tests/test_auth_service.py::test_signup_success -v -o addopts=\"\")",
+      "Bash(taskkill:*)",
+      "Bash(if exist nul del /f nul)"
     ]
   }
 }

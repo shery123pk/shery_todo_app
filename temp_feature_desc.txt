@@ -1,0 +1,6 @@
+Professional Jira-Like Project Management System
+
+## Product Vision
+Build a production-grade, multi-tenant project management SaaS application similar to Jira, Linear, and Trello. Target users are individuals and small-to-medium teams (5-50 people) who need structured task management, collaboration, and workflow automation.
+
+This is NOT a simple todo app. This is a complete enterprise-ready system with proper architecture, security, scalability, and professional UX.

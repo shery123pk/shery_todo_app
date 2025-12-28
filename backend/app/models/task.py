@@ -43,6 +43,11 @@ class Task(SQLModel, table=True):
     priority: Optional[str] = Field(default=None, max_length=10)
     tags: List[str] = Field(default_factory=list, sa_column=Column(ARRAY(String)))
     category: Optional[str] = Field(default=None, max_length=50)
+    due_date: Optional[datetime] = Field(default=None, index=True)
+    reminder_sent: bool = Field(default=False, nullable=False)
+    is_recurring: bool = Field(default=False, nullable=False)
+    recurrence_pattern: Optional[str] = Field(default=None, max_length=20)  # daily, weekly, monthly
+    parent_task_id: Optional[UUID] = Field(default=None, foreign_key="tasks.id")
     created_at: datetime = Field(
         default_factory=datetime.utcnow,
         index=True,

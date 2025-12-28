@@ -1,278 +1,496 @@
 """
 Authentication Router
-Handles user signup, signin, signout, and profile endpoints
+
+Handles user authentication endpoints: signup, signin, signout,
+email verification, password reset, and profile management.
+
 Author: Sharmeen Asif
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
-from sqlmodel import Session, select
-from datetime import datetime, timedelta
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_session
+from app.database import get_async_session
+from app.services.auth_service import AuthService
+from app.dependencies import get_current_user
 from app.models.user import User
-from app.models.session import Session as DBSession
+from app.config import settings
 from app.schemas.auth import (
     SignupRequest,
     SigninRequest,
     UserResponse,
-    SigninResponse
+    SigninResponse,
+    UpdateProfileRequest,
+    ChangePasswordRequest,
+    VerifyEmailRequest,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
 )
-from app.security import hash_password, verify_password, create_access_token
-from app.dependencies import get_current_user
-from app.config import settings
+from app.utils.errors import ValidationError, NotFoundError, UnauthorizedError, ConflictError
 
 
-router = APIRouter()
+router = APIRouter(tags=["Authentication"])
 
 
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def signup(
+async def signup(
     signup_data: SignupRequest,
-    db: Session = Depends(get_session)
+    db: AsyncSession = Depends(get_async_session),
 ):
     """
-    User registration endpoint.
+    Create a new user account.
 
-    Creates a new user account with email and password.
+    Validates email uniqueness, password strength, and creates user.
+    Returns user data (excluding password).
 
     Args:
-        signup_data: SignupRequest with email, password, and optional name
-        db: Database session
+        signup_data: Email, password, and full name
 
     Returns:
         UserResponse: Created user data
 
     Raises:
-        HTTPException 400: Invalid email format
-        HTTPException 400: Password too short (< 8 chars)
-        HTTPException 409: Email already registered
-
-    Example:
-        POST /api/auth/signup
-        {
-            "email": "user@example.com",
-            "password": "securepass123",
-            "name": "John Doe"
-        }
-
-        Response (201):
-        {
-            "id": "550e8400-...",
-            "email": "user@example.com",
-            "email_verified": false,
-            "name": "John Doe",
-            "created_at": "2025-12-26T10:00:00Z"
-        }
+        400: Invalid email format or weak password
+        409: Email already registered
     """
-    # Check if email already exists
-    existing_user = db.exec(
-        select(User).where(User.email == signup_data.email)
-    ).first()
+    auth_service = AuthService(db)
 
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="An account with this email already exists"
+    try:
+        user = await auth_service.signup(
+            email=signup_data.email,
+            password=signup_data.password,
+            full_name=signup_data.full_name,
         )
 
-    # Hash password
-    hashed_password = hash_password(signup_data.password)
+        # TODO: Send verification email
+        # await send_verification_email(user.email, verification_token)
 
-    # Create new user
-    new_user = User(
-        email=signup_data.email,
-        hashed_password=hashed_password,
-        name=signup_data.name,
-        email_verified=False,
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
-    )
+        return user
 
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return new_user
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    except ConflictError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e),
+        )
 
 
 @router.post("/signin", response_model=SigninResponse)
-def signin(
+async def signin(
     signin_data: SigninRequest,
     response: Response,
     request: Request,
-    db: Session = Depends(get_session)
+    db: AsyncSession = Depends(get_async_session),
 ):
     """
-    User signin endpoint.
+    Sign in a user and create a session.
 
-    Authenticates user and creates a session with JWT token in httpOnly cookie.
+    Verifies credentials, creates session, and sets HttpOnly cookie.
 
     Args:
-        signin_data: SigninRequest with email, password, and remember_me flag
-        response: FastAPI Response to set cookies
-        request: FastAPI Request to get client IP and user agent
-        db: Database session
+        signin_data: Email, password, and remember_me flag
+        response: FastAPI Response object to set cookies
+        request: FastAPI Request object to get client info
 
     Returns:
         SigninResponse: User data and success message
 
     Raises:
-        HTTPException 401: Invalid email or password
-        HTTPException 429: Too many login attempts (rate limiting)
-
-    Example:
-        POST /api/auth/signin
-        {
-            "email": "user@example.com",
-            "password": "securepass123",
-            "remember_me": false
-        }
-
-        Response (200):
-        {
-            "user": {
-                "id": "550e8400-...",
-                "email": "user@example.com",
-                "email_verified": false,
-                "name": "John Doe",
-                "created_at": "2025-12-26T10:00:00Z"
-            },
-            "message": "Signed in successfully"
-        }
-
-        Sets cookie: session_token=<JWT>; HttpOnly; Secure; SameSite=Lax
+        401: Invalid credentials
     """
-    # Find user by email
-    user = db.exec(
-        select(User).where(User.email == signin_data.email)
-    ).first()
+    auth_service = AuthService(db)
 
-    # Verify user exists and password is correct
-    # Use same error message for both cases to prevent email enumeration
-    if not user or not verify_password(signin_data.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password"
+    try:
+        # Get client info
+        ip_address = request.client.host if request.client else None
+        user_agent = request.headers.get("user-agent")
+
+        user, session, access_token, refresh_token = await auth_service.signin(
+            email=signin_data.email,
+            password=signin_data.password,
+            remember_me=signin_data.remember_me,
+            ip_address=ip_address,
+            user_agent=user_agent,
         )
 
-    # Create JWT access token
-    access_token = create_access_token(
-        user_id=user.id,
-        remember_me=signin_data.remember_me
-    )
+        # Set access token in HttpOnly cookie
+        max_age = 30 * 24 * 60 * 60 if signin_data.remember_me else 7 * 24 * 60 * 60  # 30 days or 7 days
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            httponly=True,
+            secure=True,  # HTTPS only
+            samesite="lax",
+            max_age=max_age,
+        )
 
-    # Calculate expiration time
-    if signin_data.remember_me:
-        expires_delta = timedelta(minutes=settings.access_token_expire_minutes_remember)
-    else:
-        expires_delta = timedelta(minutes=settings.access_token_expire_minutes)
+        # Set refresh token in separate HttpOnly cookie
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            max_age=30 * 24 * 60 * 60,  # 30 days
+        )
 
-    expires_at = datetime.utcnow() + expires_delta
+        return SigninResponse(
+            user=user,
+            message="Sign in successful",
+        )
 
-    # Get client IP and user agent
-    client_ip = request.client.host if request.client else None
-    user_agent = request.headers.get("user-agent")
-
-    # Create session in database
-    db_session = DBSession(
-        user_id=user.id,
-        token=access_token,
-        expires_at=expires_at,
-        ip_address=client_ip,
-        user_agent=user_agent,
-        created_at=datetime.utcnow()
-    )
-
-    db.add(db_session)
-    db.commit()
-
-    # Set httpOnly cookie
-    response.set_cookie(
-        key="session_token",
-        value=access_token,
-        httponly=True,
-        secure=settings.environment == "production",  # HTTPS only in production
-        samesite="lax",
-        max_age=int(expires_delta.total_seconds()),
-        path="/"
-    )
-
-    return SigninResponse(user=user)
+    except UnauthorizedError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+        )
 
 
-@router.post("/signout", status_code=status.HTTP_204_NO_CONTENT)
-def signout(
+@router.post("/signout", status_code=status.HTTP_200_OK)
+async def signout(
     response: Response,
-    current_user: User = Depends(get_current_user),
-    session_token: str = Cookie(None),
-    db: Session = Depends(get_session)
+    request: Request,
+    db: AsyncSession = Depends(get_async_session),
 ):
     """
-    User signout endpoint.
+    Sign out the current user.
 
-    Deletes the session from database and clears the session cookie.
+    Invalidates the session and clears cookies.
 
     Args:
-        response: FastAPI Response to clear cookies
-        current_user: Currently authenticated user
-        session_token: JWT token from cookie
-        db: Database session
+        response: FastAPI Response object to clear cookies
+        request: FastAPI Request object to get token
 
     Returns:
-        204 No Content
-
-    Example:
-        POST /api/auth/signout
-        (Requires session_token cookie)
-
-        Response: 204 No Content
-        Clears cookie: session_token
+        Success message
     """
-    # Delete session from database
-    if session_token:
-        db_session = db.exec(
-            select(DBSession).where(DBSession.token == session_token)
-        ).first()
+    auth_service = AuthService(db)
 
-        if db_session:
-            db.delete(db_session)
-            db.commit()
+    # Get token from cookie
+    token = request.cookies.get("access_token")
 
-    # Clear cookie
-    response.delete_cookie(key="session_token", path="/")
+    if token:
+        await auth_service.signout(token)
 
-    return None
+    # Clear cookies
+    response.delete_cookie(key="access_token")
+    response.delete_cookie(key="refresh_token")
+
+    return {"message": "Sign out successful"}
 
 
 @router.get("/me", response_model=UserResponse)
-def get_current_user_profile(
-    current_user: User = Depends(get_current_user)
+async def get_current_user_profile(
+    current_user: User = Depends(get_current_user),
 ):
     """
-    Get current user profile endpoint.
+    Get the current authenticated user's profile.
 
-    Returns the authenticated user's profile data.
-
-    Args:
-        current_user: Currently authenticated user (from dependency)
+    Requires valid session token in cookie.
 
     Returns:
         UserResponse: Current user data
 
     Raises:
-        HTTPException 401: Not authenticated
-
-    Example:
-        GET /api/auth/me
-        (Requires session_token cookie)
-
-        Response (200):
-        {
-            "id": "550e8400-...",
-            "email": "user@example.com",
-            "email_verified": false,
-            "name": "John Doe",
-            "created_at": "2025-12-26T10:00:00Z"
-        }
+        401: Not authenticated
     """
     return current_user
+
+
+@router.put("/profile", response_model=UserResponse)
+async def update_profile(
+    profile_data: UpdateProfileRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_session),
+):
+    """
+    Update the current user's profile.
+
+    Allows updating full_name, avatar_url, timezone, and language.
+
+    Args:
+        profile_data: Profile fields to update
+        current_user: Current authenticated user
+
+    Returns:
+        UserResponse: Updated user data
+
+    Raises:
+        400: Invalid input data
+        401: Not authenticated
+    """
+    auth_service = AuthService(db)
+
+    try:
+        user = await auth_service.update_profile(
+            user_id=current_user.id,
+            full_name=profile_data.full_name,
+            avatar_url=profile_data.avatar_url,
+            timezone=profile_data.timezone,
+            language=profile_data.language,
+        )
+
+        return user
+
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    except NotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+
+
+@router.put("/password", status_code=status.HTTP_200_OK)
+async def change_password(
+    password_data: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_session),
+    response: Response = None,
+):
+    """
+    Change the current user's password.
+
+    Verifies current password, updates to new password,
+    and invalidates all existing sessions (forces re-login).
+
+    Args:
+        password_data: Current and new password
+        current_user: Current authenticated user
+
+    Returns:
+        Success message
+
+    Raises:
+        400: Weak new password
+        401: Current password incorrect or not authenticated
+    """
+    auth_service = AuthService(db)
+
+    try:
+        await auth_service.change_password(
+            user_id=current_user.id,
+            current_password=password_data.current_password,
+            new_password=password_data.new_password,
+        )
+
+        # Clear cookies (force re-login)
+        if response:
+            response.delete_cookie(key="access_token")
+            response.delete_cookie(key="refresh_token")
+
+        return {"message": "Password changed successfully. Please sign in again."}
+
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    except UnauthorizedError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+        )
+    except NotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+
+
+@router.post("/refresh", status_code=status.HTTP_200_OK)
+async def refresh_token(
+    request: Request,
+    response: Response,
+    db: AsyncSession = Depends(get_async_session),
+):
+    """
+    Refresh access token using refresh token.
+
+    Gets new access and refresh tokens using the refresh token from cookie.
+
+    Args:
+        request: FastAPI Request to get refresh token cookie
+        response: FastAPI Response to set new cookies
+
+    Returns:
+        Success message
+
+    Raises:
+        401: Invalid or expired refresh token
+    """
+    auth_service = AuthService(db)
+
+    # Get refresh token from cookie
+    refresh_token = request.cookies.get("refresh_token")
+
+    if not refresh_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No refresh token provided",
+        )
+
+    try:
+        new_access_token, new_refresh_token = await auth_service.refresh_access_token(
+            refresh_token=refresh_token,
+        )
+
+        # Set new tokens in cookies
+        response.set_cookie(
+            key="access_token",
+            value=new_access_token,
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            max_age=30 * 24 * 60 * 60,
+        )
+
+        response.set_cookie(
+            key="refresh_token",
+            value=new_refresh_token,
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            max_age=30 * 24 * 60 * 60,
+        )
+
+        return {"message": "Token refreshed successfully"}
+
+    except UnauthorizedError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+        )
+
+
+@router.post("/verify-email", response_model=UserResponse)
+async def verify_email(
+    verify_data: VerifyEmailRequest,
+    db: AsyncSession = Depends(get_async_session),
+):
+    """
+    Verify user's email address using verification token.
+
+    Marks the user's email as verified in the database.
+
+    Args:
+        verify_data: Contains verification token from email link
+
+    Returns:
+        UserResponse: User data with email_verified=True
+
+    Raises:
+        401: Invalid or expired verification token
+        404: User not found
+    """
+    auth_service = AuthService(db)
+
+    try:
+        user = await auth_service.verify_email_with_token(verify_data.token)
+        return user
+
+    except UnauthorizedError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+        )
+    except NotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+
+
+@router.post("/forgot-password", status_code=status.HTTP_200_OK)
+async def forgot_password(
+    forgot_data: ForgotPasswordRequest,
+    db: AsyncSession = Depends(get_async_session),
+):
+    """
+    Request password reset email.
+
+    Sends password reset link to user's email if account exists.
+    Always returns success for security (prevents email enumeration).
+
+    Args:
+        forgot_data: Contains email address
+
+    Returns:
+        Success message (always, even if email doesn't exist)
+
+    Note:
+        For development, returns the reset token in response.
+        In production, this would only send email and return generic success.
+    """
+    auth_service = AuthService(db)
+
+    # Generate reset token (returns None if email doesn't exist)
+    reset_token = await auth_service.forgot_password(forgot_data.email)
+
+    # For security, always return success message
+    # In development, also return token for testing
+    response_data = {
+        "message": "If an account exists with this email, a password reset link has been sent."
+    }
+
+    # Only include token in development mode
+    if reset_token and settings.environment == "development":
+        response_data["reset_token"] = reset_token  # For testing only
+
+    return response_data
+
+
+@router.post("/reset-password", status_code=status.HTTP_200_OK)
+async def reset_password(
+    reset_data: ResetPasswordRequest,
+    db: AsyncSession = Depends(get_async_session),
+):
+    """
+    Reset user password using reset token.
+
+    Uses token from email to set new password.
+    Invalidates all existing sessions (forces re-login).
+
+    Args:
+        reset_data: Contains reset token and new password
+
+    Returns:
+        Success message
+
+    Raises:
+        400: Weak new password
+        401: Invalid or expired reset token
+        404: User not found
+    """
+    auth_service = AuthService(db)
+
+    try:
+        await auth_service.reset_password(
+            token=reset_data.token,
+            new_password=reset_data.new_password,
+        )
+
+        return {"message": "Password reset successfully. Please sign in with your new password."}
+
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    except UnauthorizedError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+        )
+    except NotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )

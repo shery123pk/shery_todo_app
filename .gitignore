@@ -56,3 +56,5 @@ Thumbs.db
 .ruff_cache/
 .pyright/
 .mypy_cache/
+nul
+backend/nul

@@ -1,0 +1,15 @@
+warning: `VIRTUAL_ENV=Z:\hk-2do\shery_todo_app\.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+================================================================================
+PHASE 2 TODO APPLICATION - COMPLETE END-TO-END TEST
+================================================================================
+
+[TEST 1/6] User Signup
+--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "Z:\hk-2do\shery_todo_app\backend\test_complete_flow.py", line 43, in <module>
+    print(f"\u2705 PASS - User created successfully")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\AEHTRAM\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>

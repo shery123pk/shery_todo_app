@@ -37,6 +37,7 @@ export default function ChatbotPage() {
     null
   );
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -120,6 +121,8 @@ export default function ChatbotPage() {
       }
     } finally {
       setIsLoading(false);
+      // Restore focus to input field after message is sent
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
   };
 
@@ -130,6 +133,8 @@ export default function ChatbotPage() {
 
   const handleQuickCommand = (command: string) => {
     setInput(command);
+    // Focus input field after setting quick command
+    setTimeout(() => inputRef.current?.focus(), 0);
   };
 
   return (
@@ -259,6 +264,7 @@ export default function ChatbotPage() {
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-4">
           <div className="flex gap-2">
             <input
+              ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}

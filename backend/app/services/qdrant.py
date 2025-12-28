@@ -22,7 +22,7 @@ class QdrantService:
         self.collection_name = os.getenv("QDRANT_COLLECTION", "todo_embeddings")
 
         if not qdrant_url:
-            print("⚠️ QDRANT_URL not configured. Semantic search disabled.")
+            print("WARNING: QDRANT_URL not configured. Semantic search disabled.")
             self.client = None
             self.openai_client = None
             return
@@ -39,15 +39,15 @@ class QdrantService:
             if openai_api_key:
                 self.openai_client = OpenAI(api_key=openai_api_key)
             else:
-                print("⚠️ OPENAI_API_KEY not configured. Using Qdrant without embeddings.")
+                print("WARNING: OPENAI_API_KEY not configured. Using Qdrant without embeddings.")
                 self.openai_client = None
 
             # Ensure collection exists
             self._ensure_collection()
 
-            print("✅ Qdrant service initialized successfully")
+            print("SUCCESS: Qdrant service initialized successfully")
         except Exception as e:
-            print(f"⚠️ Failed to initialize Qdrant: {e}")
+            print(f"WARNING: Failed to initialize Qdrant: {e}")
             self.client = None
             self.openai_client = None
 

@@ -1,3 +1,4 @@
+
 """
 Alembic Environment Configuration
 Handles database migrations for Phase 2 Full-Stack Web Todo Backend
@@ -6,8 +7,14 @@ Author: Sharmeen Asif
 
 from logging.config import fileConfig
 import os
+from pathlib import Path
 from sqlalchemy import engine_from_config, pool
 from alembic import context
+from dotenv import load_dotenv
+
+# Load .env file from backend directory
+env_path = Path(__file__).parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
 
 # Import SQLModel metadata
 from app.models.user import User
@@ -29,6 +36,13 @@ target_metadata = SQLModel.metadata
 # Get database URL from environment variable
 database_url = os.getenv("DATABASE_URL")
 if database_url:
+    # Convert async URL to sync URL for Alembic migrations
+    # asyncpg -> psycopg2
+    if "+asyncpg" in database_url:
+        database_url = database_url.replace("+asyncpg", "")
+    # Convert SSL parameter (asyncpg uses ssl=, psycopg2 uses sslmode=)
+    if "?ssl=require" in database_url:
+        database_url = database_url.replace("?ssl=require", "?sslmode=require")
     config.set_main_option("sqlalchemy.url", database_url)
 
 

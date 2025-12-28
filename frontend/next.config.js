@@ -10,7 +10,7 @@ const nextConfig = {
 
   // Optimize for Vercel deployment
   experimental: {
-    optimizeCss: true,
+    // optimizeCss: true, // Disabled - requires critters package
   },
 
   // Security headers

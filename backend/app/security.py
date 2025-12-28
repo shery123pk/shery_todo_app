@@ -1,30 +1,23 @@
 """
 Security Utilities
-Password hashing with bcrypt and JWT token management
+
+Password hashing with bcrypt and JWT token management for authentication.
 Author: Sharmeen Asif
 """
 
-from passlib.context import CryptContext
 from jose import JWTError, jwt
-from datetime import datetime, timedelta
+import bcrypt
+from datetime import datetime, timedelta, UTC
 from typing import Optional
 from uuid import UUID
 from app.config import settings
-
-
-# Password hashing context
-pwd_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto",
-    bcrypt__rounds=settings.bcrypt_rounds
-)
 
 
 # Password Hashing Functions
 
 def hash_password(password: str) -> str:
     """
-    Hash a password using bcrypt.
+    Hash a password using bcrypt (cost factor 12).
 
     Args:
         password: Plain text password
@@ -36,7 +29,12 @@ def hash_password(password: str) -> str:
         hashed = hash_password("securepass123")
         # Returns: "$2b$12$..."
     """
-    return pwd_context.hash(password)
+    # Convert password to bytes and hash with bcrypt
+    password_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt(rounds=12)
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    # Return as string for database storage
+    return hashed.decode('utf-8')
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -54,59 +52,58 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         is_valid = verify_password("securepass123", "$2b$12$...")
         # Returns: True or False
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    # Convert both to bytes for bcrypt comparison
+    password_bytes = plain_password.encode('utf-8')
+    hashed_bytes = hashed_password.encode('utf-8')
+    return bcrypt.checkpw(password_bytes, hashed_bytes)
 
 
 # JWT Token Functions
 
 def create_access_token(
-    user_id: UUID,
+    data: dict,
     remember_me: bool = False,
-    additional_data: Optional[dict] = None
 ) -> str:
     """
     Create a JWT access token for authentication.
 
     Args:
-        user_id: User's UUID to encode in token
+        data: Data to encode in token (must include "sub" for user ID)
         remember_me: If True, use extended expiration (30 days vs 7 days)
-        additional_data: Optional additional claims to include in token
 
     Returns:
         Encoded JWT token string
 
     Example:
         token = create_access_token(
-            user_id=UUID("550e8400-e29b-41d4-a716-446655440000"),
+            data={"sub": "550e8400-e29b-41d4-a716-446655440000"},
             remember_me=True
         )
         # Returns: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
     """
+    # Copy data to avoid modifying original
+    to_encode = data.copy()
+
     # Determine expiration time
     if remember_me:
         expires_delta = timedelta(minutes=settings.access_token_expire_minutes_remember)
     else:
         expires_delta = timedelta(minutes=settings.access_token_expire_minutes)
 
-    expire = datetime.utcnow() + expires_delta
+    expire = datetime.now(UTC) + expires_delta
 
-    # Build token payload
-    to_encode = {
-        "sub": str(user_id),  # Subject (user ID)
+    # Add standard claims
+    to_encode.update({
         "exp": expire,  # Expiration time
-        "iat": datetime.utcnow(),  # Issued at
+        "iat": datetime.now(UTC),  # Issued at
         "type": "access"  # Token type
-    }
-
-    # Add additional claims if provided
-    if additional_data:
-        to_encode.update(additional_data)
+    })
 
     # Encode and return token
     encoded_jwt = jwt.encode(
         to_encode,
-        settings.better_auth_secret,
-        algorithm="HS256"
+        settings.jwt_secret,
+        algorithm=settings.jwt_algorithm,
     )
 
     return encoded_jwt
@@ -130,8 +127,8 @@ def decode_access_token(token: str) -> Optional[dict]:
     try:
         payload = jwt.decode(
             token,
-            settings.better_auth_secret,
-            algorithms=["HS256"]
+            settings.jwt_secret,
+            algorithms=[settings.jwt_algorithm],
         )
         return payload
     except JWTError:

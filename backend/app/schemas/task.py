@@ -27,6 +27,9 @@ class TaskCreate(BaseModel):
     priority: Optional[str] = Field(None, max_length=10, description="Priority (low/medium/high)")
     tags: Optional[List[str]] = Field(default_factory=list, description="Tags for categorization")
     category: Optional[str] = Field(None, max_length=50, description="Category")
+    due_date: Optional[datetime] = Field(None, description="Due date and time for the task")
+    is_recurring: Optional[bool] = Field(False, description="Whether task repeats")
+    recurrence_pattern: Optional[str] = Field(None, description="Recurrence pattern (daily/weekly/monthly)")
 
     class Config:
         json_schema_extra = {
@@ -61,6 +64,9 @@ class TaskUpdate(BaseModel):
     priority: Optional[str] = Field(None, max_length=10)
     tags: Optional[List[str]] = None
     category: Optional[str] = Field(None, max_length=50)
+    due_date: Optional[datetime] = None
+    is_recurring: Optional[bool] = None
+    recurrence_pattern: Optional[str] = None
 
     class Config:
         json_schema_extra = {
@@ -97,6 +103,9 @@ class TaskResponse(BaseModel):
     priority: Optional[str]
     tags: List[str]
     category: Optional[str]
+    due_date: Optional[datetime]
+    is_recurring: bool
+    recurrence_pattern: Optional[str]
     created_at: datetime
     updated_at: datetime
 
