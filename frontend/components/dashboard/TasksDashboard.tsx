@@ -31,7 +31,9 @@ import {
   Calendar,
   FolderKanban,
   List,
-  LayoutGrid
+  LayoutGrid,
+  Moon,
+  Sun
 } from 'lucide-react'
 
 export default function TasksDashboard() {
@@ -41,6 +43,28 @@ export default function TasksDashboard() {
   const [taskStats, setTaskStats] = useState({ total: 0, completed: 0, incomplete: 0 })
   const [refreshKey, setRefreshKey] = useState(0)
   const [viewMode, setViewMode] = useState<'list' | 'board'>('list')
+  const [darkMode, setDarkMode] = useState(false)
+
+  // Load dark mode preference from localStorage
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true'
+    setDarkMode(savedDarkMode)
+    if (savedDarkMode) {
+      document.documentElement.classList.add('dark')
+    }
+  }, [])
+
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode
+    setDarkMode(newDarkMode)
+    localStorage.setItem('darkMode', String(newDarkMode))
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }
 
   const handleTasksChange = useCallback((stats: { total: number; completed: number; incomplete: number }) => {
     setTaskStats(stats)
@@ -118,6 +142,15 @@ export default function TasksDashboard() {
 
             {/* Right Side Actions */}
             <div className="flex items-center gap-3">
+              {/* Dark Mode Toggle */}
+              <button
+                onClick={toggleDarkMode}
+                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              >
+                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+
               {/* Notifications */}
               <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
                 <Bell className="w-5 h-5" />
@@ -346,7 +379,7 @@ export default function TasksDashboard() {
 
               {/* Conditional View Rendering */}
               {viewMode === 'list' ? (
-                <TaskList key={refreshKey} onTasksChange={handleTasksChange} />
+                <TaskList key={refreshKey} refreshKey={refreshKey} onTasksChange={handleTasksChange} />
               ) : (
                 <KanbanBoard key={refreshKey} onCreateTask={() => setShowCreateModal(true)} />
               )}
