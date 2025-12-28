@@ -1,449 +1,456 @@
-# Evolution of Todo
+# TaskFlow - AI-Powered Project Management System
+
 **Author: Sharmeen Asif**
 
-A 5-phase project demonstrating Spec-Driven Development (SDD) from CLI to Full-Stack AI-Powered Application with Cloud Deployment.
+A modern, full-stack task management application with AI chatbot, voice commands, and multi-language support (English & Urdu).
 
-**Tech Stack:** FastAPI • Next.js 15 • OpenAI GPT-4 • Neon PostgreSQL • Qdrant • HuggingFace • Kubernetes
+[![Tech Stack](https://img.shields.io/badge/Stack-FastAPI%20|%20Next.js%2015%20|%20PostgreSQL-blue)](#tech-stack)
+[![AI Powered](https://img.shields.io/badge/AI-OpenAI%20GPT--4-green)](#features)
+[![Languages](https://img.shields.io/badge/Languages-English%20|%20اردو-orange)](#advanced-features)
+[![Deploy](https://img.shields.io/badge/Deploy-Vercel%20|%20HuggingFace-purple)](#deployment)
 
----
-
-## 🚀 Quick Start
-
-Choose your setup path:
-
-| Path | Guide | Best For |
-|------|-------|----------|
-| **🌩️ Cloud (Recommended)** | [SETUP_WITH_NEON_OPENAI_QDRANT.md](./SETUP_WITH_NEON_OPENAI_QDRANT.md) | Production, AI features, semantic search |
-| **🔑 Get Credentials** | [ENV_CREDENTIALS_TEMPLATE.md](./ENV_CREDENTIALS_TEMPLATE.md) | Quick reference, fill-in template |
-| **💡 Multi-Project Tips** | [CREDENTIALS_BEST_PRACTICES.md](./CREDENTIALS_BEST_PRACTICES.md) | Reusing credentials across projects |
-| **🚢 Deploy Backend** | [DEPLOY_TO_HUGGINGFACE.md](./DEPLOY_TO_HUGGINGFACE.md) | Deploy to HuggingFace Spaces |
-| **🏠 Local Setup** | [GETTING_STARTED.md](./GETTING_STARTED.md) | Local PostgreSQL, no AI |
-
-**Most users start here:** 👉 [SETUP_WITH_NEON_OPENAI_QDRANT.md](./SETUP_WITH_NEON_OPENAI_QDRANT.md)
+**Live Demo:** [Coming Soon]
 
 ---
 
-## 🎯 Project Vision
+## ✨ Features
 
-This monorepo showcases the evolution of a todo application across five progressive phases, demonstrating:
-- **Spec-Driven Development** with Claude Code and Spec-Kit Plus
-- **AI as Sole Developer** (Claude) with Human as Architect
-- **Full Traceability** from specs to code with ADRs and PHRs
-- **Additive Evolution** where each phase builds on previous ones
-- **Production Deployments** on Vercel (frontend), HuggingFace (backend), Neon (database), and DigitalOcean DOKS (cloud)
+### 🎯 Core Features (10/10 Complete)
 
-## 📊 Project Status
+1. **Add Task** - Create tasks via API or natural language
+2. **Delete Task** - Remove tasks by ID or description
+3. **Update Task** - Modify title, description, priority, tags
+4. **View Task List** - Display all tasks with filters
+5. **Mark as Complete** - Toggle completion status
+6. **Priorities & Tags** - Organize with low/medium/high priority and custom tags
+7. **Search & Filter** - Keyword search across title/description, filter by status/priority/category
+8. **Sort Tasks** - Order by created date, due date, priority, or title
+9. **Recurring Tasks** - Auto-reschedule daily/weekly/monthly tasks
+10. **Due Dates & Reminders** - Email notifications 30 minutes before deadline
 
-| Phase | Name | Status | Deployment |
-|-------|------|--------|------------|
-| **1** | CLI + In-Memory | ✅ Complete | Local |
-| **2** | Full-Stack Web | ✅ Complete | Vercel + HuggingFace + Neon |
-| **3** | AI-Powered Chatbot | ✅ Complete | Local / Docker |
-| **4** | Local K8s Deployment | ✅ Complete | Minikube + Helm |
-| **5** | Cloud Deployment | ✅ Complete | DigitalOcean DOKS + Kafka + Dapr |
+### 🚀 Advanced Features (2/4 Complete)
 
-## 🏗️ Monorepo Structure
+11. **🌍 Multi-Language Support** - Automatic Urdu/English detection with RTL text rendering
+12. **🎤 Voice Commands** - Speech-to-text and text-to-speech in both languages
+13. **🧠 Reusable Intelligence** - *(Planned)* AI agents for task categorization and smart scheduling
+14. **☁️ Cloud-Native Blueprints** - *(Planned)* Terraform templates and Kubernetes deployment
+
+---
+
+## 🎬 Demo Video
+
+### Voice Commands Demo
+```
+🎤 "Show me all my tasks"
+🎤 "Add buy groceries tomorrow at 3pm with high priority"
+🎤 "Mark task 1 as complete"
+🎤 "میرے سارے ٹاسک دکھائیں" (Show all my tasks in Urdu)
+```
+
+### Natural Language AI
+```
+💬 "Create a weekly team meeting every Monday at 10am"
+💬 "Show all high priority incomplete tasks"
+💬 "کل شام 3 بجے گروسری خریدنا شامل کریں" (Add task in Urdu)
+```
+
+---
+
+## 🏗️ Tech Stack
+
+### Frontend
+- **Framework:** Next.js 15 (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **UI Components:** shadcn/ui + Radix UI
+- **State Management:** React Context API
+- **Voice:** Web Speech API (Browser-based, FREE)
+
+### Backend
+- **Framework:** FastAPI (Python 3.11+)
+- **Database:** PostgreSQL (Neon - Serverless)
+- **ORM:** SQLModel + SQLAlchemy
+- **Auth:** JWT + bcrypt password hashing
+- **AI:** OpenAI GPT-4 with Function Calling
+- **Vector DB:** Qdrant (Semantic search)
+- **Email:** SMTP (Gmail/SendGrid)
+
+### DevOps
+- **Frontend Hosting:** Vercel (Free)
+- **Backend Hosting:** Hugging Face Spaces (Free)
+- **Database:** Neon PostgreSQL (Free tier)
+- **Package Manager:** UV (Python), npm (Node.js)
+- **Version Control:** Git + GitHub
+
+---
+
+## 📦 Project Structure
 
 ```
 shery_todo_app/
-├── cli/                          # Phase 1: CLI Todo App ✅
-│   ├── app/                      # Source code (models, storage, CLI)
-│   ├── tests/                    # 81 tests, 96% coverage
-│   └── pyproject.toml
-├── backend/                      # Phase 2: FastAPI Backend ✅
-│   ├── app/                      # API routes, models, auth, events
-│   ├── alembic/                  # Database migrations
-│   ├── tests/                    # Backend test suite
-│   └── Dockerfile                # HuggingFace Spaces deployment
-├── frontend/                     # Phase 2: Next.js Frontend ✅
-│   ├── app/                      # App Router (auth, dashboard)
-│   ├── components/               # React components (shadcn/ui)
-│   ├── lib/                      # Utilities and API client
-│   └── Dockerfile                # Vercel deployment
-├── chatbot/                      # Phase 3: AI Chatbot ✅
-│   ├── app/                      # MCP server, Claude agent, CLI
-│   ├── tests/                    # Chatbot tests
-│   └── Dockerfile                # Container deployment
-├── k8s/                          # Phase 4: Kubernetes Manifests ✅
-│   ├── *.yaml                    # K8s resources (namespace, deployments, services)
-│   ├── helm/todo-app/            # Helm chart for todo application
-│   └── deploy.sh                 # Minikube deployment script
-├── infra/                        # Phase 5: Cloud Infrastructure ✅
-│   ├── kafka/                    # Kafka + Zookeeper for event streaming
-│   ├── dapr/                     # Dapr configuration (pub/sub, state store)
-│   └── doks/terraform/           # Terraform IaC for DigitalOcean
-├── .github/workflows/            # CI/CD Pipeline ✅
-│   └── deploy.yml                # Automated testing and deployment
-├── docs/                         # Documentation ✅
-│   ├── PRODUCTION_DEPLOYMENT.md  # Production deployment guide
-│   └── README.md                 # Documentation index
-├── scripts/                      # Deployment Scripts ✅
-│   ├── verify-env.py             # Environment validation
-│   ├── test-production.py        # Production testing
-│   └── deployment-checklist.md   # Step-by-step deployment
-├── specs/                        # All phase specifications
-│   └── 001-cli-todo-app/         # Phase 1 specs ✅
-├── history/                      # Traceability artifacts
-│   ├── adr/                      # Architecture Decision Records
-│   └── prompts/                  # Prompt History Records (PHRs)
-├── .specify/                     # Spec-Kit Plus configuration
-│   ├── memory/constitution.md    # Project constitution
-│   └── templates/                # SDD templates
-└── README.md                     # This file
+├── backend/                      # FastAPI Backend
+│   ├── app/
+│   │   ├── routers/             # API endpoints (tasks, auth, chatbot)
+│   │   ├── models/              # Database models (User, Task, Session)
+│   │   ├── services/            # Business logic (email, auth, reminders)
+│   │   ├── schemas/             # Pydantic schemas for validation
+│   │   └── main.py              # FastAPI application
+│   ├── alembic/                 # Database migrations
+│   ├── tests/                   # Backend tests
+│   └── Dockerfile               # Docker image for deployment
+│
+├── frontend/                     # Next.js Frontend
+│   ├── app/                     # App Router pages
+│   │   ├── auth/               # Authentication pages
+│   │   ├── tasks/              # Task management
+│   │   └── page.tsx            # Dashboard
+│   ├── components/              # React components
+│   │   ├── auth/               # Auth forms
+│   │   ├── tasks/              # Task components
+│   │   ├── dashboard/          # Dashboard widgets
+│   │   └── chatbot/            # AI Chatbot UI
+│   ├── contexts/                # React contexts
+│   ├── hooks/                   # Custom React hooks
+│   └── types/                   # TypeScript types
+│
+├── cli/                          # CLI Version (96% test coverage)
+│   ├── app/                     # CLI application
+│   └── tests/                   # 81 passing tests
+│
+├── docs/                         # Documentation
+│   ├── DEPLOYMENT_GUIDE.md      # Vercel + HuggingFace deployment
+│   ├── ADVANCED_FEATURES.md     # Voice & Multi-language guide
+│   ├── FEATURES_COMPLETE.md     # All 10 core features
+│   └── EMAIL_SETUP.md           # Email reminder setup
+│
+└── specs/                        # Feature specifications
+    └── 001-project-management-system/
 ```
+
+---
 
 ## 🚀 Quick Start
 
-### Phase 1: CLI
+### Prerequisites
+- Node.js 18+ and npm
+- Python 3.11+ and UV
+- PostgreSQL database (or use Neon)
+- OpenAI API key (for AI chatbot)
+
+### 1. Clone Repository
 
 ```bash
-# Navigate to CLI directory
-cd cli
+git clone https://github.com/shery123pk/shery_todo_app.git
+cd shery_todo_app
+```
+
+### 2. Backend Setup
+
+```bash
+cd backend
+
+# Create .env file (copy from .env.example)
+cp .env.example .env
+
+# Edit .env with your credentials:
+# DATABASE_URL=postgresql+asyncpg://...
+# OPENAI_API_KEY=sk-...
+# JWT_SECRET=your-secret-key
 
 # Install dependencies
 uv sync
 
-# Use the CLI
-uv run todo --help
+# Run database migrations
+uv run alembic upgrade head
+
+# Start backend server
+uv run uvicorn app.main:app --reload --port 8001
+```
+
+**Backend will be running at:** http://localhost:8001
+
+### 3. Frontend Setup
+
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Create .env.local file
+echo "NEXT_PUBLIC_API_URL=http://localhost:8001" > .env.local
+
+# Start development server
+npm run dev
+```
+
+**Frontend will be running at:** http://localhost:3002
+
+### 4. Access the Application
+
+- **Web App:** http://localhost:3002
+- **API Docs:** http://localhost:8001/docs
+- **Health Check:** http://localhost:8001/health
+
+---
+
+## 🎯 Usage Examples
+
+### Web Interface
+
+1. **Sign Up:** Create account at `/auth/signup`
+2. **Dashboard:** View task stats and quick actions
+3. **Chatbot:** Click purple button to open AI assistant
+4. **Voice Input:** Click microphone to speak commands
+5. **Urdu Support:** Type in Urdu, AI responds in Urdu!
+
+### CLI Version (Local)
+
+```bash
+cd cli
 uv run todo add "My first task"
 uv run todo list
 uv run todo complete 1
 uv run todo delete 1
-
-# Run tests
-uv run pytest -v
 ```
 
-### Phase 2: Full-Stack Web (Local Development)
+### API Endpoints
+
+**Authentication:**
+```bash
+# Sign up
+curl -X POST http://localhost:8001/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"pass123","full_name":"John Doe"}'
+
+# Sign in (get access token)
+curl -X POST http://localhost:8001/api/auth/login \
+  -d "username=user@example.com&password=pass123"
+```
+
+**Tasks:**
+```bash
+# Create task
+curl -X POST http://localhost:8001/api/tasks \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Buy groceries","priority":"high"}'
+
+# List tasks
+curl http://localhost:8001/api/tasks?completed=false \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+**AI Chatbot:**
+```bash
+# Chat with AI
+curl -X POST http://localhost:8001/api/chatbot/chat \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Show me all my tasks"}'
+```
+
+---
+
+## 🌍 Multi-Language Support
+
+### Automatic Language Detection
+- Detects Urdu text using Unicode range (U+0600 to U+06FF)
+- Automatically switches AI prompts and UI direction (RTL/LTR)
+- Supports mixing English and Urdu in conversation
+
+### Example Commands
+
+**English:**
+```
+"Show me all my tasks"
+"Add buy milk tomorrow at 3pm"
+"Delete task 1"
+```
+
+**Urdu:**
+```
+"میرے سارے ٹاسک دکھائیں"
+"کل شام 3 بجے دودھ خریدنا شامل کریں"
+"پہلا ٹاسک ڈیلیٹ کریں"
+```
+
+---
+
+## 🎤 Voice Commands
+
+### How to Use
+1. Open chatbot (purple floating button)
+2. Click microphone button
+3. Speak your command in English or Urdu
+4. AI responds with voice playback
+
+### Supported Browsers
+- ✅ Chrome/Chromium (Recommended)
+- ✅ Edge
+- ✅ Safari (14.1+)
+- ⚠️ Firefox (Limited support)
+
+### Voice Features
+- Speech-to-text in English & Urdu
+- Text-to-speech responses
+- Realistic voice synthesis (Sara, Samantha, etc.)
+- Visual recording indicator
+- No token usage (browser-based)
+
+---
+
+## 📧 Email Reminders
+
+Set up email notifications for task deadlines:
+
+1. Create Gmail App Password: https://myaccount.google.com/apppasswords
+2. Add to backend `.env`:
+   ```env
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USERNAME=your-email@gmail.com
+   SMTP_PASSWORD=your-app-password
+   FROM_EMAIL=your-email@gmail.com
+   ```
+3. Restart backend - reminders check every 10 minutes
+
+**See:** [EMAIL_SETUP.md](./EMAIL_SETUP.md) for detailed guide
+
+---
+
+## 🚢 Deployment
+
+### Frontend (Vercel)
+
+1. Go to https://vercel.com
+2. Import GitHub repo: `shery123pk/shery_todo_app`
+3. Configure:
+   - **Root Directory:** `frontend`
+   - **Framework:** Next.js
+   - **Environment Variable:** `NEXT_PUBLIC_API_URL=YOUR_BACKEND_URL`
+4. Deploy!
+
+### Backend (Hugging Face Spaces)
+
+1. Go to https://huggingface.co/spaces
+2. Create new Space with Docker SDK
+3. Upload `backend/` files and `Dockerfile`
+4. Add environment secrets:
+   - `DATABASE_URL`
+   - `OPENAI_API_KEY`
+   - `QDRANT_URL`
+   - `QDRANT_API_KEY`
+   - `JWT_SECRET`
+5. Space will be live at: `https://YOUR_USERNAME-taskflow-backend.hf.space`
+
+**See:** [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for complete instructions
+
+---
+
+## 📊 Testing
+
+### Backend Tests
 
 ```bash
-# Backend
 cd backend
-uv sync
-uv run alembic upgrade head
-uv run uvicorn app.main:app --reload --port 8000
+uv run pytest -v
+uv run pytest --cov=app --cov-report=html
+```
 
-# Frontend (in new terminal)
+### Frontend Tests
+
+```bash
 cd frontend
-npm install
-npm run dev
-
-# Access:
-# - Frontend: http://localhost:3000
-# - Backend API: http://localhost:8000
-# - API Docs: http://localhost:8000/docs
+npm run test
+npm run test:coverage
 ```
 
-### Phase 3: AI Chatbot
-
-```bash
-cd chatbot
-uv sync
-
-# Set environment variables
-# ANTHROPIC_API_KEY=your-api-key
-# API_URL=http://localhost:8000 (or your backend URL)
-
-# Run chatbot
-uv run chatbot
-
-# Follow prompts to authenticate and chat
-```
-
-### Phase 4: Kubernetes (Minikube)
-
-```bash
-cd k8s
-
-# Start Minikube and deploy all services
-./deploy.sh
-
-# Check deployment status
-kubectl get pods -n todo-app
-kubectl get services -n todo-app
-
-# Access frontend
-minikube service frontend-service -n todo-app
-```
-
-### Phase 5: Cloud Deployment
-
-See [Production Deployment Guide](./docs/PRODUCTION_DEPLOYMENT.md) for detailed instructions on:
-- Deploying to DigitalOcean DOKS with Terraform
-- Setting up Kafka event streaming
-- Configuring Dapr microservices
-- Running CI/CD pipeline with GitHub Actions
-
-## 📋 Phase Roadmap
-
-### Phase 1: CLI + In-Memory ✅ COMPLETE
-
-**Deliverables:**
-- ✅ Command-line todo application with Typer
-- ✅ In-memory storage with JSON persistence
-- ✅ CRUD operations (add, list, update, delete, complete)
-- ✅ 96% test coverage (81 tests passing)
-- ✅ Full SDD workflow (constitution → spec → plan → tasks → implement)
-
-**Tech Stack:** Python 3.13+, Typer, pytest, UV
-
-**[View Phase 1 Details](./cli/README.md)**
-
----
-
-### Phase 2: Full-Stack Web Application ✅ COMPLETE
-
-**Deliverables:**
-- ✅ REST API with FastAPI
-- ✅ Next.js 15 frontend with shadcn/ui components
-- ✅ PostgreSQL database (Neon-compatible)
-- ✅ Custom JWT authentication (bcrypt password hashing)
-- ✅ OpenAPI/Swagger documentation
-- ✅ UUID-based task IDs with user isolation
-- ✅ Production-ready Dockerfiles
-
-**Tech Stack:** FastAPI, SQLModel, Alembic, Next.js 15, TypeScript, Tailwind CSS, shadcn/ui
-
-**Deployment Targets:**
-- **Frontend:** Vercel
-- **Backend:** HuggingFace Spaces (port 7860)
-- **Database:** Neon PostgreSQL
-
-**Documentation:** [Production Deployment Guide](./docs/PRODUCTION_DEPLOYMENT.md)
-
----
-
-### Phase 3: AI-Powered Chatbot ✅ COMPLETE
-
-**Deliverables:**
-- ✅ Natural language interface for task management
-- ✅ Claude Sonnet 4 AI agent with function calling
-- ✅ MCP (Model Context Protocol) server with 5 tools
-- ✅ Rich CLI interface with authentication
-- ✅ Conversational task management
-
-**MCP Tools:**
-1. `list_tasks` - Get all tasks (with filtering)
-2. `create_task` - Create new task
-3. `update_task` - Update existing task
-4. `delete_task` - Delete task
-5. `search_tasks` - Search tasks by keywords
-
-**Tech Stack:** Anthropic Claude API, MCP SDK, httpx, rich
-
-**Example Commands:**
-- "Show me all my tasks"
-- "Add buy groceries to my todo list"
-- "Mark task 3 as complete"
-- "Delete the task about shopping"
-
----
-
-### Phase 4: Local Kubernetes Deployment ✅ COMPLETE
-
-**Deliverables:**
-- ✅ Docker images for all services (backend, frontend, chatbot)
-- ✅ Kubernetes manifests (Deployments, Services, ConfigMaps, Secrets)
-- ✅ PostgreSQL with PersistentVolumeClaim
-- ✅ Init containers for database migrations
-- ✅ Helm charts for templated deployment
-- ✅ Minikube deployment script
-
-**Kubernetes Resources:**
-- Namespace: `todo-app`
-- Deployments: postgres, backend, frontend, chatbot
-- Services: ClusterIP (internal), LoadBalancer (frontend)
-- Storage: PVC for PostgreSQL data
-
-**Tech Stack:** Docker, Kubernetes 1.28+, Helm 3, Minikube
-
-**Quick Deploy:**
-```bash
-cd k8s && ./deploy.sh
-```
-
----
-
-### Phase 5: Advanced Cloud Deployment ✅ COMPLETE
-
-**Deliverables:**
-- ✅ Event streaming with Apache Kafka + Zookeeper
-- ✅ Microservices communication with Dapr sidecar
-- ✅ Redis state store for Dapr
-- ✅ Infrastructure as Code with Terraform
-- ✅ DigitalOcean DOKS cluster configuration
-- ✅ CI/CD pipeline with GitHub Actions
-
-**Infrastructure Components:**
-- **Kafka:** Event streaming for task operations (create, update, delete, complete)
-- **Dapr:** Service mesh for pub/sub and state management
-- **Terraform:** DOKS cluster, managed PostgreSQL, load balancer
-- **CI/CD:** Automated testing → Docker build → Kubernetes deployment
-
-**Event Streaming:** Tasks publish events to Kafka topics for real-time updates and analytics
-
-**Tech Stack:** Apache Kafka, Dapr, Terraform, DigitalOcean, GitHub Actions
-
-**Production Deployment:** See [docs/PRODUCTION_DEPLOYMENT.md](./docs/PRODUCTION_DEPLOYMENT.md)
-
-## 📖 Documentation
-
-### Specifications
-- [Constitution](`./.specify/memory/constitution.md`) - Project governance and principles
-- [Phase 1 Spec](./specs/001-cli-todo-app/spec.md) - CLI requirements
-- [Phase 1 Plan](./specs/001-cli-todo-app/plan.md) - Implementation architecture
-- [Phase 1 Tasks](./specs/001-cli-todo-app/tasks.md) - Executable task breakdown
-
-### Status & History
-- [Phase 1 Status Report](./PHASE1_STATUS.md) - Completion metrics and next steps
-- [GitHub Setup Guide](./GITHUB_SETUP.md) - Repository deployment instructions
-- [Prompt History Records](./history/prompts/) - Full development audit trail
-- [Architecture Decisions](./history/adr/) - ADRs (to be created for Phase 2+)
-
-## 🧪 Testing
-
-### Phase 1 Tests
+### CLI Tests (96% Coverage)
 
 ```bash
 cd cli
-
-# Run all tests
-uv run pytest
-
-# Run with coverage
-uv run pytest --cov=todo_cli --cov-report=html
-
-# Run specific test suite
-uv run pytest tests/unit/test_models.py
-uv run pytest tests/unit/test_repository.py
-uv run pytest tests/integration/test_cli_commands.py
-
-# Type checking
-uv run pyright
-
-# Linting
-uv run ruff check .
+uv run pytest -v
+# 81 tests passing
 ```
 
-**Current Coverage:** 96% (81/81 tests passing)
+---
 
-## 🚀 Deployment
+## 🎓 Built For
 
-### Phase 1: CLI (Local Only)
+**Panaversity Hackathon Project**
 
-```bash
-cd cli
-uv pip install -e .
-todo --help
-```
+Demonstrates:
+- ✅ Full-stack development (FastAPI + Next.js)
+- ✅ AI integration (OpenAI GPT-4)
+- ✅ Modern UI/UX (Tailwind + shadcn/ui)
+- ✅ Multi-language support
+- ✅ Voice interface
+- ✅ Production deployment
+- ✅ Comprehensive documentation
 
-### Phase 2+: Vercel + HuggingFace
+---
 
-**Prerequisites:**
-1. GitHub repository: https://github.com/shery123pk/shery_todo_app
-2. Vercel account for frontend deployment
-3. HuggingFace account for backend deployment
+## 💰 Cost Breakdown
 
-**Frontend (Vercel):**
-```bash
-cd frontend
-vercel --prod
-```
+| Service | Free Tier | Used For |
+|---------|-----------|----------|
+| **Vercel** | Unlimited personal projects | Frontend hosting |
+| **Hugging Face** | Unlimited public spaces | Backend API |
+| **Neon** | 0.5GB storage, 191h compute | PostgreSQL database |
+| **Qdrant Cloud** | 1GB free | Vector search (optional) |
+| **OpenAI API** | Pay-per-use (~$0.002/request) | AI chatbot |
 
-**Backend (HuggingFace):**
-- Create Space at https://huggingface.co/new-space
-- Link GitHub repository
-- Configure Docker deployment from `backend/Dockerfile`
+**Monthly Cost:** ~$0-5 (depending on usage)
 
-*Note: Phase 2 deployment instructions will be added when implemented.*
+**Note:** Voice features are FREE (browser Web Speech API)
 
-## 🎓 Methodology
+---
 
-This project follows **Spec-Driven Development (SDD)** principles:
+## 📚 Documentation
 
-1. **Constitution First:** Define project governance and non-negotiables
-2. **Specify:** Write detailed specs with user stories and acceptance criteria
-3. **Plan:** Create implementation architecture with ADRs
-4. **Task Breakdown:** Generate executable tasks with dependencies
-5. **Implement:** AI executes tasks following TDD approach
-6. **Trace:** Full audit trail with PHRs and commit messages
+- **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** - Deploy to Vercel + HuggingFace
+- **[ADVANCED_FEATURES.md](./ADVANCED_FEATURES.md)** - Voice & Multi-language
+- **[FEATURES_COMPLETE.md](./FEATURES_COMPLETE.md)** - All 10 core features
+- **[EMAIL_SETUP.md](./EMAIL_SETUP.md)** - Email reminder configuration
+- **[WAKE_UP_SUMMARY.md](./WAKE_UP_SUMMARY.md)** - Quick reference guide
 
-**Human Role:** Architect (specs, reviews, decisions)
-**AI Role:** Developer (code, tests, implementation)
-
-## 📊 Success Metrics
-
-### Phase 1 Achievements
-- ✅ 100% spec coverage (6/6 user stories)
-- ✅ 96% code coverage (81 tests passing)
-- ✅ 100% test pass rate
-- ✅ <10 cyclomatic complexity
-- ✅ Full SDD workflow executed
-- ✅ Complete traceability (PHRs)
-
-### Phase 2 Achievements
-- ✅ Complete authentication system (JWT + bcrypt)
-- ✅ Full CRUD API with OpenAPI documentation
-- ✅ User isolation and data security
-- ✅ Production-ready Dockerfiles
-- ✅ Database migrations with Alembic
-- ✅ Modern frontend with Next.js 15 and shadcn/ui
-
-### Phase 3 Achievements
-- ✅ AI agent with natural language understanding
-- ✅ 5 MCP tools for task management
-- ✅ Claude Sonnet 4 integration
-- ✅ Conversational interface
-- ✅ Authenticated API access
-
-### Phase 4 Achievements
-- ✅ All services containerized
-- ✅ Complete Kubernetes manifests
-- ✅ Helm charts for deployment
-- ✅ Database persistence with PVCs
-- ✅ Init containers for migrations
-- ✅ Automated Minikube deployment
-
-### Phase 5 Achievements
-- ✅ Kafka event streaming implemented
-- ✅ Dapr microservices architecture
-- ✅ Terraform IaC for cloud deployment
-- ✅ CI/CD pipeline with GitHub Actions
-- ✅ Production-ready infrastructure
-
-### Overall Project Success
-- ✅ All 5 phases completed
-- ✅ Full evolution from CLI to cloud deployment demonstrated
-- ✅ Production-ready code for all phases
-- ✅ Comprehensive documentation and deployment guides
-- ✅ Multiple deployment options (local, Minikube, cloud)
-- ✅ Complete tooling (environment validation, testing, deployment)
+---
 
 ## 🤝 Contributing
 
-This is a demonstration project following strict SDD principles. All changes must:
-1. Start with a spec in `specs/`
-2. Follow the constitution in `.specify/memory/constitution.md`
-3. Maintain full traceability with PHRs
-4. Preserve backward compatibility
-
-## 📜 License
-
-MIT
-
-## 🔗 Links
-
-- **Repository:** https://github.com/shery123pk/shery_todo_app
-- **Constitution:** [.specify/memory/constitution.md](./.specify/memory/constitution.md)
-- **Phase 1 Spec:** [specs/001-cli-todo-app/spec.md](./specs/001-cli-todo-app/spec.md)
-- **Claude Code:** https://claude.com/claude-code
-- **Spec-Kit Plus:** (embedded in `.specify/`)
+This project follows Spec-Driven Development (SDD) principles. See constitution and specs in `.specify/` and `specs/` directories.
 
 ---
 
-**Current Phase:** All 5 Phases Complete ✅
-**Last Updated:** 2025-12-26
-**Status:** Production Ready (All Phases)
-**Author:** Sharmeen Asif
+## 📜 License
 
-🤖 Built with [Claude Code](https://claude.com/claude-code) | 🎓 Panaversity Hackathon Project
+MIT License - See [LICENSE](./LICENSE) file
+
+---
+
+## 🔗 Links
+
+- **GitHub:** https://github.com/shery123pk/shery_todo_app
+- **Author:** Sharmeen Asif
+- **Built with:** [Claude Code](https://claude.com/claude-code)
+
+---
+
+## 🎯 Quick Stats
+
+- **Total Files:** 150+
+- **Lines of Code:** 10,000+
+- **Features:** 12 (10 core + 2 advanced)
+- **CLI Test Coverage:** 96% (81 tests)
+- **Languages:** English, اردو (Urdu)
+- **Tech Stack:** 10+ technologies
+- **Documentation:** 5 comprehensive guides
+
+---
+
+**Last Updated:** 2025-12-28
+**Status:** Production Ready ✅
+**Version:** 2.0.0
+
+🤖 Built with AI • 🎓 Panaversity Project • 🚀 Ready to Deploy
