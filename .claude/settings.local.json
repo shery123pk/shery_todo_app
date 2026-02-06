@@ -33,7 +33,18 @@
       "Bash(taskkill:*)",
       "Bash(if exist nul del /f nul)",
       "Bash(git remote:*)",
-      "Bash(git remote add:*)"
+      "Bash(git remote add:*)",
+      "Bash(pip install:*)",
+      "Bash(todo --help:*)",
+      "Bash(todo list)",
+      "Bash(if exist tasks.json del tasks.json)",
+      "Bash(if exist clitasks.json del clitasks.json)",
+      "Bash(todo add:*)",
+      "Bash(todo test-add \"Minimal test task\")",
+      "Bash(pip show:*)",
+      "Bash(todo list:*)",
+      "Bash(todo complete:*)",
+      "Bash(todo update:*)"
     ]
   }
 }

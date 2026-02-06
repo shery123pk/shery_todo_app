@@ -1,9 +1,22 @@
 [project]
-name = "todo-cli"
-version = "0.1.0"
-description = "Phase 1 CLI Todo App with in-memory storage and JSON persistence"
+name = "taskflow-cli"
+version = "1.0.0"
+description = "Professional Todo CLI App with ALL 10 features - priorities, tags, search, filter, sort, recurring tasks, due dates"
 readme = "README.md"
 requires-python = ">=3.13"
+license = {text = "MIT"}
+authors = [
+    {name = "Shery", email = "shery@example.com"},
+]
+keywords = ["todo", "cli", "task", "productivity", "hackathon"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+]
 dependencies = [
     "click>=8.1.0",
 ]
@@ -14,10 +27,13 @@ dev = [
     "pytest-cov>=4.1.0",
     "ruff>=0.2.0",
     "pyright>=1.1.0",
+    "build>=1.0.0",
+    "twine>=4.0.0",
 ]
 
 [project.scripts]
 todo = "todo_cli.main:main"
+taskapp = "todo_cli.interactive:main"
 
 [build-system]
 requires = ["hatchling"]
