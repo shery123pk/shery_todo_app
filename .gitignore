@@ -58,3 +58,25 @@ Thumbs.db
 .mypy_cache/
 nul
 backend/nul
+
+# Node.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Deployment
+vercel/
+.vercel/
+
+# Temporary files
+temp_*.txt
+cookies.txt
+test_*.txt
+*_test_response.json

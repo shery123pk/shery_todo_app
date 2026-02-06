@@ -44,7 +44,8 @@
       "Bash(pip show:*)",
       "Bash(todo list:*)",
       "Bash(todo complete:*)",
-      "Bash(todo update:*)"
+      "Bash(todo update:*)",
+      "Bash(rm:*)"
     ]
   }
 }
