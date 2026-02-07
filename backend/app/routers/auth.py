@@ -124,7 +124,7 @@ async def signin(
             value=access_token,
             httponly=True,
             secure=True,  # HTTPS only
-            samesite="lax",
+            samesite="none",
             max_age=max_age,
         )
 
@@ -134,7 +134,7 @@ async def signin(
             value=refresh_token,
             httponly=True,
             secure=True,
-            samesite="lax",
+            samesite="none",
             max_age=30 * 24 * 60 * 60,  # 30 days
         )
 
@@ -348,7 +348,7 @@ async def refresh_token(
             value=new_access_token,
             httponly=True,
             secure=True,
-            samesite="lax",
+            samesite="none",
             max_age=30 * 24 * 60 * 60,
         )
 
@@ -357,7 +357,7 @@ async def refresh_token(
             value=new_refresh_token,
             httponly=True,
             secure=True,
-            samesite="lax",
+            samesite="none",
             max_age=30 * 24 * 60 * 60,
         )
 
