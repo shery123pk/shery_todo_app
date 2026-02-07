@@ -6,6 +6,7 @@
  * Author: Sharmeen Asif
  */
 
+import { Suspense } from 'react'
 import Link from 'next/link'
 import ResetPasswordForm from '@/components/auth/ResetPasswordForm'
 import { ShieldCheck } from 'lucide-react'
@@ -37,7 +38,9 @@ export default function ResetPasswordPage() {
 
         {/* Form Card */}
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
-          <ResetPasswordForm />
+          <Suspense fallback={<div className="text-center py-4">Loading...</div>}>
+            <ResetPasswordForm />
+          </Suspense>
         </div>
 
         {/* Footer Links */}

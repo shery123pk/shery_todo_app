@@ -6,6 +6,7 @@
  * Author: Sharmeen Asif
  */
 
+import { Suspense } from 'react'
 import Link from 'next/link'
 import VerifyEmailForm from '@/components/auth/VerifyEmailForm'
 import { MailCheck } from 'lucide-react'
@@ -37,7 +38,9 @@ export default function VerifyEmailPage() {
 
         {/* Form Card */}
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
-          <VerifyEmailForm />
+          <Suspense fallback={<div className="text-center py-4">Loading...</div>}>
+            <VerifyEmailForm />
+          </Suspense>
         </div>
 
         {/* Footer Links */}

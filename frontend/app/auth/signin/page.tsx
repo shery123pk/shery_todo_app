@@ -6,6 +6,7 @@
 
 'use client'
 
+import { Suspense } from 'react'
 import Link from 'next/link'
 import SigninForm from '@/components/auth/SigninForm'
 import { LogIn } from 'lucide-react'
@@ -37,7 +38,9 @@ export default function SigninPage() {
 
         {/* Form Card */}
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
-          <SigninForm />
+          <Suspense fallback={<div className="text-center py-4">Loading...</div>}>
+            <SigninForm />
+          </Suspense>
         </div>
 
         {/* Footer Links */}
