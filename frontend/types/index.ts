@@ -278,6 +278,10 @@ export interface ProcessEnv {
 
 declare global {
   namespace NodeJS {
-    interface ProcessEnv extends ProcessEnv {}
+    interface ProcessEnv {
+      NEXT_PUBLIC_API_URL: string
+      BETTER_AUTH_URL: string
+      BETTER_AUTH_SECRET: string
+    }
   }
 }

@@ -1,3 +1,5 @@
+'use client'
+
 /**
  * Email Verification Page
  * Beautiful glassmorphism design for verifying user email

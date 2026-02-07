@@ -31,7 +31,7 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
     transition,
   }
 
-  const getPriorityColor = (priority?: string) => {
+  const getPriorityColor = (priority?: string | null) => {
     switch (priority) {
       case 'high':
         return 'border-l-4 border-l-red-500 bg-red-50/50'
@@ -44,7 +44,7 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
     }
   }
 
-  const getPriorityIcon = (priority?: string) => {
+  const getPriorityIcon = (priority?: string | null) => {
     switch (priority) {
       case 'high':
         return <AlertCircle className="w-4 h-4 text-red-500" />

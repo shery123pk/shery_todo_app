@@ -362,8 +362,9 @@ export default function TaskList({ onTasksChange, refreshKey }: TaskListProps) {
       {editingTask && (
         <EditTaskModal
           task={editingTask}
+          isOpen={true}
           onClose={handleEditClose}
-          onComplete={handleEditComplete}
+          onTaskUpdated={handleEditComplete}
         />
       )}
     </div>

@@ -1,3 +1,5 @@
+'use client'
+
 /**
  * Forgot Password Page
  * Beautiful glassmorphism design for password reset

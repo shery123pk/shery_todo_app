@@ -45,7 +45,10 @@
       "Bash(todo list:*)",
       "Bash(todo complete:*)",
       "Bash(todo update:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(where:*)",
+      "Bash(echo:*)",
+      "Bash(grep:*)"
     ]
   }
 }
