@@ -245,8 +245,8 @@ export async function signup(data: SignupData): Promise<UserResponse> {
   });
 
   if (!response.ok) {
-    const error: ApiErrorDetail = await response.json();
-    throw new ApiError(error.message || 'Signup failed', response.status, error.errors);
+    const error = await response.json();
+    throw new ApiError(error.detail || error.message || 'Signup failed', response.status, error.errors || null);
   }
 
   return response.json();
@@ -265,8 +265,8 @@ export async function signin(data: SigninData): Promise<SigninResponse> {
   });
 
   if (!response.ok) {
-    const error: ApiErrorDetail = await response.json();
-    throw new ApiError(error.message || 'Signin failed', response.status, error.errors);
+    const error = await response.json();
+    throw new ApiError(error.detail || error.message || 'Signin failed', response.status, error.errors || null);
   }
 
   const result: SigninResponse = await response.json();
