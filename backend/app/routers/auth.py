@@ -140,6 +140,7 @@ async def signin(
 
         return SigninResponse(
             user=user,
+            access_token=access_token,
             message="Sign in successful",
         )
 

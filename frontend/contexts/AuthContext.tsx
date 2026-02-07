@@ -12,7 +12,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserResponse } from '@/lib/api-types';
-import { getCurrentUser } from '@/lib/api-client';
+import { getCurrentUser, clearStoredToken, getStoredToken } from '@/lib/api-client';
 
 /**
  * Authentication context state
@@ -70,11 +70,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const refreshUser = useCallback(async () => {
     try {
       setLoading(true);
+      // Only try to fetch user if we have a stored token
+      const token = getStoredToken();
+      if (!token) {
+        setUser(null);
+        return;
+      }
       const userData = await getCurrentUser();
       setUser(userData);
     } catch (error) {
       // User not authenticated or session expired
       setUser(null);
+      clearStoredToken();
     } finally {
       setLoading(false);
     }
@@ -92,29 +99,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
    */
   const logout = useCallback(async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signout`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to sign out');
-      }
-
-      // Clear user state
-      setUser(null);
-
-      // Redirect to signin
-      router.push('/auth/signin?message=Signed out successfully');
+      const { signout } = await import('@/lib/api-client');
+      await signout();
     } catch (error) {
       console.error('Logout error:', error);
-      // Clear user state even if API call fails
-      setUser(null);
-      router.push('/auth/signin');
     }
+    // Always clear state and redirect
+    clearStoredToken();
+    setUser(null);
+    router.push('/auth/signin?message=Signed out successfully');
   }, [router]);
 
   /**

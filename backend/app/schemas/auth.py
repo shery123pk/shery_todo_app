@@ -107,10 +107,12 @@ class SigninResponse(BaseModel):
 
     Attributes:
         user: User data
+        access_token: JWT access token for Authorization header
         message: Success message
     """
 
     user: UserResponse
+    access_token: str
     message: str = "Signed in successfully"
 
     class Config:

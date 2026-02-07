@@ -8,6 +8,7 @@
 
 import { useRequireAuth } from '@/contexts/AuthContext'
 import { useState, useCallback, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import TaskList from '@/components/tasks/TaskList'
 import CreateTaskModal from '@/components/tasks/CreateTaskModal'
@@ -37,6 +38,7 @@ import {
 } from 'lucide-react'
 
 export default function TasksDashboard() {
+  const router = useRouter()
   const { user, loading, logout } = useRequireAuth()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -96,7 +98,8 @@ export default function TasksDashboard() {
   }
 
   if (!user) {
-    return null // useRequireAuth will redirect
+    router.push('/auth/signin')
+    return null
   }
 
   // Get user initials for avatar
