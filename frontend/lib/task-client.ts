@@ -5,8 +5,14 @@
  */
 
 import type { Task, TaskCreate, TaskUpdate, TaskListResponse } from '@/types/task'
+import { getStoredToken } from '@/lib/api-client'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+
+function getAuthHeaders(): Record<string, string> {
+  const token = getStoredToken()
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
 
 /**
  * Get all tasks for authenticated user
@@ -29,9 +35,9 @@ export async function getTasks(params?: {
 
   const response = await fetch(`${API_URL}/api/tasks?${query}`, {
     method: 'GET',
-    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
+      ...getAuthHeaders(),
     },
   })
 
@@ -52,9 +58,9 @@ export async function getTasks(params?: {
 export async function getTask(taskId: string): Promise<Task> {
   const response = await fetch(`${API_URL}/api/tasks/${taskId}`, {
     method: 'GET',
-    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
+      ...getAuthHeaders(),
     },
   })
 
@@ -75,9 +81,9 @@ export async function getTask(taskId: string): Promise<Task> {
 export async function createTask(data: TaskCreate): Promise<Task> {
   const response = await fetch(`${API_URL}/api/tasks`, {
     method: 'POST',
-    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
+      ...getAuthHeaders(),
     },
     body: JSON.stringify(data),
   })
@@ -99,9 +105,9 @@ export async function createTask(data: TaskCreate): Promise<Task> {
 export async function updateTask(taskId: string, data: TaskUpdate): Promise<Task> {
   const response = await fetch(`${API_URL}/api/tasks/${taskId}`, {
     method: 'PATCH',
-    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
+      ...getAuthHeaders(),
     },
     body: JSON.stringify(data),
   })
@@ -123,9 +129,9 @@ export async function updateTask(taskId: string, data: TaskUpdate): Promise<Task
 export async function deleteTask(taskId: string): Promise<void> {
   const response = await fetch(`${API_URL}/api/tasks/${taskId}`, {
     method: 'DELETE',
-    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
+      ...getAuthHeaders(),
     },
   })
 
