@@ -1,3 +1,4 @@
+
 # Project Management System Backend - Dockerfile
 # Production-ready multi-tenant project management system
 # Supports deployment to Railway, Render, or HuggingFace Spaces
@@ -37,13 +38,12 @@ RUN useradd -m -u 1000 appuser && \
     chown -R appuser:appuser /app
 USER appuser
 
-# Expose port 8000 (default for Railway/Render) or 7860 (HuggingFace Spaces)
-EXPOSE 8000
+# HuggingFace Spaces uses port 7860
+EXPOSE 7860
 
 # Health check endpoint
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl --fail http://localhost:${PORT:-8000}/health || exit 1
+    CMD curl --fail http://localhost:7860/health || exit 1
 
-# Run migrations and start server
-# PORT env var defaults to 8000 but can be overridden (Railway uses dynamic port)
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1"]
+# Run migrations and start server on port 7860 (HuggingFace Spaces)
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 7860 --workers 1"]
