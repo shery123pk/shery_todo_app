@@ -168,6 +168,15 @@ export default function Home() {
         </div>
       </main>
 
+      {/* Footer */}
+      <footer className="relative z-10 py-8 border-t border-white/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-sm text-gray-600">
+            Built by <span className="font-semibold text-gray-900">Sharmeen Asif</span> <span className="text-gray-500">(AstolixGen Team Researcher)</span>
+          </p>
+        </div>
+      </footer>
+
       <style jsx>{`
         @keyframes blob {
           0% {
