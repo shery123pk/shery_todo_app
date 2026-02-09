@@ -1,0 +1,61 @@
+# Default values for TaskFlow Helm Chart
+# Phase IV: Local Kubernetes Deployment
+
+# Backend Configuration
+backend:
+  replicaCount: 2
+  image:
+    repository: taskflow-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8000
+    targetPort: 7860
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  env:
+    corsOrigins: "http://localhost:3000"
+
+# Frontend Configuration
+frontend:
+  replicaCount: 2
+  image:
+    repository: taskflow-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: NodePort
+    port: 3000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
+
+# PostgreSQL Configuration
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "16-alpine"
+  storage: 1Gi
+  database: taskflow_db
+  username: taskflow
+
+# Ingress Configuration
+ingress:
+  enabled: true
+  host: taskflow.local
+
+# kagent AI operator (Phase IV)
+kagent:
+  enabled: false
+  namespace: kagent-system

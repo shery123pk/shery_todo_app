@@ -1,0 +1,16 @@
+apiVersion: v2
+name: taskflow
+description: TaskFlow - AI-Powered Project Management System
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+maintainers:
+  - name: Sharmeen Asif
+    email: codeshery@gmail.com
+  - name: Asif Ali
+    email: asif.alimusharaf@gmail.com
+keywords:
+  - taskflow
+  - project-management
+  - ai-chatbot
+  - astolixgen

@@ -1,0 +1,57 @@
+# Phase V: Dapr Components for Distributed Application Runtime
+# State Store - PostgreSQL backed
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: taskflow-statestore
+  namespace: taskflow
+spec:
+  type: state.postgresql
+  version: v1
+  metadata:
+    - name: connectionString
+      secretKeyRef:
+        name: taskflow-secrets
+        key: database-url
+    - name: tableName
+      value: "dapr_state"
+---
+# Pub/Sub - Kafka backed
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: taskflow-pubsub
+  namespace: taskflow
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "kafka:9092"
+    - name: consumerGroup
+      value: "taskflow-group"
+    - name: authType
+      value: "none"
+---
+# Subscription - Task events
+apiVersion: dapr.io/v2alpha1
+kind: Subscription
+metadata:
+  name: task-events-subscription
+  namespace: taskflow
+spec:
+  topic: task.created
+  routes:
+    default: /api/events/task-created
+  pubsubname: taskflow-pubsub
+---
+apiVersion: dapr.io/v2alpha1
+kind: Subscription
+metadata:
+  name: notification-subscription
+  namespace: taskflow
+spec:
+  topic: notification.email
+  routes:
+    default: /api/events/send-notification
+  pubsubname: taskflow-pubsub

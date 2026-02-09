@@ -1,0 +1,74 @@
+# Phase IV: Backend Deployment for Minikube
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskflow-backend
+  namespace: taskflow
+  labels:
+    app: taskflow-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: taskflow-backend
+  template:
+    metadata:
+      labels:
+        app: taskflow-backend
+    spec:
+      containers:
+        - name: backend
+          image: taskflow-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 7860
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: taskflow-secrets
+                  key: database-url
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: taskflow-secrets
+                  key: secret-key
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: taskflow-secrets
+                  key: openai-api-key
+            - name: CORS_ORIGINS
+              value: "http://localhost:3000"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 7860
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 7860
+            initialDelaySeconds: 30
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: taskflow-backend
+  namespace: taskflow
+spec:
+  selector:
+    app: taskflow-backend
+  ports:
+    - port: 8000
+      targetPort: 7860
+  type: ClusterIP

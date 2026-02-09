@@ -1,0 +1,53 @@
+# Phase IV: Frontend Deployment for Minikube
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskflow-frontend
+  namespace: taskflow
+  labels:
+    app: taskflow-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: taskflow-frontend
+  template:
+    metadata:
+      labels:
+        app: taskflow-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: taskflow-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXT_PUBLIC_API_URL
+              value: "http://taskflow-backend:8000"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: taskflow-frontend
+  namespace: taskflow
+spec:
+  selector:
+    app: taskflow-frontend
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: NodePort

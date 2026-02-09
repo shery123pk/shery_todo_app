@@ -1,0 +1,46 @@
+# Phase V: Backend with Dapr sidecar annotations
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskflow-backend-dapr
+  namespace: taskflow
+  labels:
+    app: taskflow-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: taskflow-backend
+  template:
+    metadata:
+      labels:
+        app: taskflow-backend
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "taskflow-backend"
+        dapr.io/app-port: "7860"
+        dapr.io/app-protocol: "http"
+        dapr.io/enable-api-logging: "true"
+    spec:
+      containers:
+        - name: backend
+          image: taskflow-backend:latest
+          ports:
+            - containerPort: 7860
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: taskflow-secrets
+                  key: database-url
+            - name: DAPR_ENABLED
+              value: "true"
+            - name: DAPR_PUBSUB_NAME
+              value: "taskflow-pubsub"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

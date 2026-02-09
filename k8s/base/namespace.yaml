@@ -1,0 +1,8 @@
+# Phase IV: Kubernetes Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: taskflow
+  labels:
+    app: taskflow
+    team: astolixgen
