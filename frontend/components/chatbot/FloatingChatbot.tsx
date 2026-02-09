@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { MessageCircle, X, Send, Bot, User, Sparkles, Loader2, Mic, MicOff, RotateCcw, Volume2 } from 'lucide-react'
+import { getStoredToken } from '@/lib/api-client'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -76,8 +77,9 @@ export default function FloatingChatbot() {
 
   const checkChatbotStatus = async () => {
     try {
+      const token = getStoredToken()
       const response = await fetch(`${apiUrl}/api/chatbot/status`, {
-        credentials: 'include',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
 
       if (response.ok) {
@@ -242,12 +244,13 @@ export default function FloatingChatbot() {
     setIsLoading(true)
 
     try {
+      const token = getStoredToken()
       const response = await fetch(`${apiUrl}/api/chatbot/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        credentials: 'include',
         body: JSON.stringify({ message: input }),
       })
 
