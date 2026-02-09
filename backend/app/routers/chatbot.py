@@ -29,6 +29,35 @@ load_dotenv(dotenv_path=env_path)
 
 router = APIRouter(prefix="/api/chatbot", tags=["chatbot"])
 
+# AstolixGen Team context for chatbot knowledge
+TEAM_CONTEXT = """
+=== ABOUT TASKFLOW & ASTOLIXGEN TEAM ===
+TaskFlow is built by the AstolixGen Team. When users ask about the team, founder, owner, or creators, share this info:
+
+**Asif Ali — Founder & Lead Developer, AstolixGen Team**
+- Location: Karachi, Pakistan
+- Award-winning Full-Stack Developer and AI Engineer with 22 years of technical experience
+- Karachi City Hackathon Winner 2021 for IoT innovation
+- Decorated Pakistan Navy veteran (2003-2025) with international operations across 7 countries (Kuwait, Oman, Bahrain, Djibouti, Egypt, Jordan, Saudi Arabia)
+- Awarded Tamgha-i-Khidmat (Pakistan's 7th highest government honor) in August 2025
+- Expert in CW Morse Code communication
+- Skills: Python, TypeScript, Next.js, FastAPI, React, AI/ML (LangChain, OpenAI, Gemini AI, Agentic AI, LLM Fine-Tuning), IoT & Robotics, Docker
+- Education: Agentic AI Engineering (Panaversity/PIAIC), Software Engineering (GIAIC), ACCP Prime (Aptech)
+- Key Projects: IoT Autonomous Vacuum Cleaner (Hackathon Winner), 4-Wheel Obstacle Avoidance Robot, Harmful Gas Detection System, Smart Stick for Visually Impaired, GitHub Finder & AI Chatbot, Medicine Finder App
+- Contact: asif.alimusharaf@gmail.com | github.com/asifaliattari | youtube.com/@AstolixGen | x.com/Asif888802
+
+**Sharmeen Asif — Co-Founder & Researcher, AstolixGen Team**
+- Location: Karachi, Pakistan
+- IT Administrative Professional with 18+ years of experience in computer operations, technical training, and data management
+- Currently at EAB Haroon Bahria College (Jan 2012 - Present): maintains 100% uptime for lab serving 500+ students, 99% accuracy in data operations
+- Former Pakistan Navy Computer Training Center instructor (2005-2010): trained 200+ students annually, improved proficiency scores by 30%
+- Education: Master of Computer Science (MCS) from COMSATS University (2018), B.Ed. from AIOU (2014), BSc (Premedical) from University of Karachi, DIT from Sindh Board of Technical Education
+- Currently advancing in AI through PIAIC Agent AI Program (Level 3) and GIAIC
+- Skills: Python, Next.js, Agent SDK, n8n, MS Office Suite, Git/GitHub, System Administration, Database Management
+- Contact: codeshery@gmail.com | github.com/shery123pk | linkedin.com/in/sharmeen-asif-654727373
+=== END TEAM CONTEXT ===
+"""
+
 # Initialize OpenAI client if API key is available
 openai_client = None
 openai_api_key = os.getenv("OPENAI_API_KEY")
@@ -385,7 +414,10 @@ async def chat(
 یوزر کے موجودہ ٹاسک:
 {task_context}
 
-یوزر کو اردو میں جواب دیں۔"""
+یوزر کو اردو میں جواب دیں۔
+
+{TEAM_CONTEXT}
+اگر یوزر AstolixGen ٹیم، بانی، مالک، یا تخلیق کاروں کے بارے میں پوچھے تو اوپر دی گئی معلومات شیئر کریں۔"""
         else:
             system_prompt = f"""You are a helpful AI task management assistant with access to the user's task database.
 
@@ -408,7 +440,10 @@ When marking tasks complete, use update_task with the task_id and completed: tru
 Always be friendly and confirm what you did. Use emojis to make it engaging!
 {task_context}
 
-Respond to the user in English."""
+Respond to the user in English.
+
+{TEAM_CONTEXT}
+If the user asks about the AstolixGen team, founder, owner, creator, or who built TaskFlow, share the relevant info from the team context above."""
 
         # Call OpenAI with function calling
         messages = [
