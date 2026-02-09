@@ -8,6 +8,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { getStoredToken } from "@/lib/api-client";
 
 export default function CLIPage() {
   const router = useRouter();
@@ -36,6 +37,8 @@ export default function CLIPage() {
       const args = parts.slice(1);
 
       let response = "";
+      const token = getStoredToken();
+      const authHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
       switch (mainCmd) {
         case "help":
@@ -62,7 +65,7 @@ Examples:
           else if (filter === "--active") filterParam = "?completed=false";
 
           const listRes = await fetch(`${apiUrl}/api/tasks${filterParam}`, {
-            credentials: "include",
+            headers: authHeaders,
           });
 
           if (!listRes.ok) {
@@ -102,8 +105,7 @@ Examples:
 
           const addRes = await fetch(`${apiUrl}/api/tasks`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
+            headers: { "Content-Type": "application/json", ...authHeaders },
             body: JSON.stringify({ title, completed: false }),
           });
 
@@ -131,7 +133,7 @@ Examples:
 
           // Get all tasks to find the ID
           const tasksRes = await fetch(`${apiUrl}/api/tasks`, {
-            credentials: "include",
+            headers: authHeaders,
           });
 
           if (!tasksRes.ok) {
@@ -152,8 +154,7 @@ Examples:
             `${apiUrl}/api/tasks/${taskToComplete.id}`,
             {
               method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              credentials: "include",
+              headers: { "Content-Type": "application/json", ...authHeaders },
               body: JSON.stringify({ completed: true }),
             }
           );
@@ -176,7 +177,7 @@ Examples:
 
           // Get all tasks to find the ID
           const delTasksRes = await fetch(`${apiUrl}/api/tasks`, {
-            credentials: "include",
+            headers: authHeaders,
           });
 
           if (!delTasksRes.ok) {
@@ -197,7 +198,7 @@ Examples:
             `${apiUrl}/api/tasks/${taskToDelete.id}`,
             {
               method: "DELETE",
-              credentials: "include",
+              headers: authHeaders,
             }
           );
 

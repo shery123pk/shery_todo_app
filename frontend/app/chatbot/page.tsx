@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { getStoredToken } from "@/lib/api-client";
 
 interface Message {
   role: "user" | "assistant";
@@ -53,8 +54,9 @@ export default function ChatbotPage() {
 
   const checkChatbotStatus = async () => {
     try {
+      const token = getStoredToken();
       const response = await fetch(`${apiUrl}/api/chatbot/status`, {
-        credentials: "include",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
       if (response.ok) {
@@ -80,12 +82,13 @@ export default function ChatbotPage() {
     setIsLoading(true);
 
     try {
+      const token = getStoredToken();
       const response = await fetch(`${apiUrl}/api/chatbot/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        credentials: "include",
         body: JSON.stringify({ message: input }),
       });
 

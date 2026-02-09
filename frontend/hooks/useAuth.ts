@@ -10,6 +10,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import type { User } from '@/types/auth'
+import { getStoredToken, clearStoredToken } from '@/lib/api-client'
 
 interface AuthState {
   user: User | null
@@ -38,11 +39,13 @@ export function useAuth(): UseAuthReturn {
    */
   const fetchUser = useCallback(async (): Promise<User | null> => {
     try {
+      const token = getStoredToken()
+      if (!token) return null
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
         method: 'GET',
-        credentials: 'include', // Include cookies
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
       })
 
@@ -112,11 +115,12 @@ export function useAuth(): UseAuthReturn {
     setState((prev) => ({ ...prev, isLoading: true }))
 
     try {
+      const token = getStoredToken()
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signout`, {
         method: 'POST',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       })
 
@@ -124,7 +128,8 @@ export function useAuth(): UseAuthReturn {
         throw new Error('Failed to sign out')
       }
 
-      // Clear local state
+      // Clear token and local state
+      clearStoredToken()
       setState({
         user: null,
         isLoading: false,
